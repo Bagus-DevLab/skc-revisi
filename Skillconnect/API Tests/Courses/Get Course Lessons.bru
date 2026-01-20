@@ -1,0 +1,12 @@
+name: Get Course Lessons
+request:
+  url: {{base_url}}/api/courses/1/lessons
+  method: GET
+  headers:
+    Authorization: Bearer {{token}}
+  body:
+    type: none
+response:
+  status: 200
+  body:
+    json: [] # Expect an array, possibly empty

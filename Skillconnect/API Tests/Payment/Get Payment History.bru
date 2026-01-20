@@ -1,0 +1,13 @@
+name: Get Payment History
+request:
+  url: {{base_url}}/api/payment-history
+  method: GET
+  headers:
+    Authorization: Bearer {{token}}
+  body:
+    type: none
+response:
+  status: 200
+  body:
+    json:
+      data: [] # Expect an array, possibly empty

@@ -1,0 +1,19 @@
+name: Update Avatar
+request:
+  url: {{base_url}}/api/user/avatar
+  method: POST
+  headers:
+    Authorization: Bearer {{token}}
+  body:
+    type: multipartForm
+    multipartForm:
+      - name: avatar
+        type: file
+        value: path/to/your/avatar.jpg # Replace with a path to a test image
+response:
+  status: 200
+  body:
+    json:
+      message: Avatar updated successfully.
+      user:
+        avatar: *
