@@ -5,17 +5,37 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth; // Import Auth yang benar
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf; // Import PDF Facade
 
 class CourseController extends Controller
 {
-    public function create()
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
     {
-        return view('admin.courses-create');
+        $courses = Course::latest()->get();
+        return view('admin.courses.index', compact('courses'));
     }
 
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        return view('admin.courses.create');
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function store(Request $request)
     {
         // 1. Validasi Input
@@ -50,62 +70,38 @@ class CourseController extends Controller
             'difficulty_level' => $request->difficulty_level,
         ]);
 
-        return redirect()->route('admin.dashboard')->with('success', 'Kursus berhasil ditambahkan!');
+        return redirect()->route('admin.courses.index')->with('success', 'Kursus berhasil ditambahkan!');
     }
 
-    public function downloadCertificate($courseId)
+    /**
+     * Display the specified resource.
+     *
+     * @param  \App\Models\Course  $course
+     * @return \Illuminate\Http\Response
+     */
+    public function show(Course $course)
     {
-        $user = Auth::user();
-
-        // Ambil data kursus dan pastikan statusnya 'finished'
-        $course = $user->courses()
-            ->where('course_id', $courseId)
-            ->wherePivot('status', 'finished')
-            ->firstOrFail();
-
-        $data = [
-            'name' => $user->name,
-            'course_title' => $course->title,
-            'date' => now()->format('d F Y'),
-            'cert_id' => 'SC-' . $course->id . $user->id . '-' . rand(1000, 9999)
-        ];
-
-        /** * CATATAN PENTING:
-         * Pilih salah satu opsi di bawah ini.
-         */
-
-        // OPSI A: Jika library DomPDF BELUM terinstall (Hanya menampilkan HTML di browser)
-        // return view('pdf.certificate', $data);
-
-        // OPSI B: Jika library DomPDF SUDAH terinstall (Download PDF otomatis)
-        $pdf = Pdf::loadView('pdf.certificate', $data)->setPaper('a4', 'landscape');
-        return $pdf->download('Sertifikat-' . $course->title . '.pdf');
+        return view('admin.courses.show', compact('course'));
     }
 
-    public function learn(Course $course)
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  \App\Models\Course  $course
+     * @return \Illuminate\Http\Response
+     */
+    public function edit(Course $course)
     {
-        // Pastikan user sudah enroll di kursus ini
-        if (!auth()->user()->courses()->where('course_id', $course->id)->exists()) {
-            return redirect()->route('courses.index')
-                ->with('error', 'Anda belum terdaftar di kursus ini.');
-        }
-
-        // Ambil data enrollment user
-        $enrollment = auth()->user()->courses()
-            ->where('course_id', $course->id)
-            ->first();
-
-        return view('courses.learn', compact('course', 'enrollment'));
-    }   
-    public function edit(Course $course) {
-        return view('admin.courses-edit', compact('course'));
+        return view('admin.courses.edit', compact('course'));
     }
 
-    public function destroy(Course $course) {
-        $course->delete();
-        return redirect()->back()->with('success', 'Kursus berhasil dihapus');
-    }
-
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \App\Models\Course  $course
+     * @return \Illuminate\Http\Response
+     */
     public function update(Request $request, Course $course)
     {
         // 1. Validasi Input (Sesuaikan dengan field di database kamu)
@@ -140,6 +136,18 @@ class CourseController extends Controller
         $course->update($data);
 
         // 4. Redirect kembali ke dashboard dengan pesan sukses
-        return redirect()->route('admin.dashboard')->with('success', 'Kursus berhasil diperbarui!');
+        return redirect()->route('admin.courses.index')->with('success', 'Kursus berhasil diperbarui!');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\Models\Course  $course
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Course $course)
+    {
+        $course->delete();
+        return redirect()->back()->with('success', 'Kursus berhasil dihapus');
     }
 }

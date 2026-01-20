@@ -58,6 +58,35 @@ class CourseController extends Controller
             ->with('success', '✅ Materi berhasil diselesaikan! Progress: ' . $newProgress . '%');
     }
 
+    public function downloadCertificate($courseId)
+    {
+        $user = auth()->user();
+
+        // Ambil data kursus dan pastikan statusnya 'finished'
+        $course = $user->courses()
+            ->where('course_id', $courseId)
+            ->wherePivot('status', 'finished')
+            ->firstOrFail();
+
+        $data = [
+            'name' => $user->name,
+            'course_title' => $course->title,
+            'date' => now()->format('d F Y'),
+            'cert_id' => 'SC-' . $course->id . $user->id . '-' . rand(1000, 9999)
+        ];
+
+        /** * CATATAN PENTING:
+         * Pilih salah satu opsi di bawah ini.
+         */
+
+        // OPSI A: Jika library DomPDF BELUM terinstall (Hanya menampilkan HTML di browser)
+        // return view('pdf.certificate', $data);
+
+        // OPSI B: Jika library DomPDF SUDAH terinstall (Download PDF otomatis)
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.certificate', $data)->setPaper('a4', 'landscape');
+        return $pdf->download('Sertifikat-' . $course->title . '.pdf');
+    }
+
     public function recommend(Request $request)
 {
     // 1. Ambil semua kategori unik untuk ditampilkan di dropdown form
