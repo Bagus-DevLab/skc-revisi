@@ -34,6 +34,7 @@ class PaymentController extends Controller
     {
         $payment = Payment::findOrFail($id);
         $payment->status = 'rejected';
+        $payment->rejection_reason = $request->rejection_reason;
         $payment->save();
 
         return redirect()->route('admin.payments.index')->with('success', 'Pembayaran berhasil ditolak.');

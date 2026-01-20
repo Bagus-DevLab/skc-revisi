@@ -90,19 +90,26 @@
                                 
                                 {{-- Status --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    @if($payment->status === 'success')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                            Lunas
-                                        </span>
-                                    @elseif($payment->status === 'pending')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                            Menunggu
-                                        </span>
-                                    @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                            Gagal
-                                        </span>
-                                    @endif
+                                    <div>
+                                        @if($payment->status === 'success')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                Lunas
+                                            </span>
+                                        @elseif($payment->status === 'pending')
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                Menunggu
+                                            </span>
+                                        @else
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                Gagal
+                                            </span>
+                                        @endif
+                                        @if($payment->status === 'rejected')
+                                        <p class="text-xs text-gray-500 mt-1 max-w-[200px] truncate" title="{{ $payment->rejection_reason ?? 'Tidak ada alasan penolakan' }}">
+                                            {{ $payment->rejection_reason ?? 'Tidak ada alasan penolakan' }}
+                                        </p>
+                                        @endif
+                                    </div>
                                 </td>
                                 
                                 {{-- Aksi --}}
