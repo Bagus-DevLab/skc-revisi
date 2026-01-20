@@ -59,127 +59,87 @@
                                 </th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            
-                            {{-- ITEM 1: BERHASIL --}}
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                    #INV-2026-001
+                       <tbody class="bg-white divide-y divide-gray-200">
+                            @forelse($payments as $payment)
+                            <tr class="hover:bg-gray-50 transition {{ $payment->status === 'rejected' ? 'opacity-60' : '' }}">
+                                {{-- No. Invoice --}}
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium {{ $payment->status === 'success' ? 'text-blue-600' : 'text-gray-500' }}">
+                                    #INV-{{ str_pad($payment->id, 6, '0', STR_PAD_LEFT) }}
                                 </td>
+                                
+                                {{-- Kursus --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">Mobile App Development</div>
-                                    <div class="text-xs text-gray-500">Bundle Beginner</div>
+                                    <div class="text-sm font-medium text-gray-900">{{ $payment->course->title }}</div>
+                                    <div class="text-xs text-gray-500">{{ $payment->course->category }}</div>
                                 </td>
+                                
+                                {{-- Tanggal --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    12 Jan 2026
+                                    {{ $payment->created_at->format('d M Y') }}
                                 </td>
+                                
+                                {{-- Metode Pembayaran --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    BCA Virtual Account
+                                    {{ ucwords(str_replace('_', ' ', $payment->payment_method)) }}
                                 </td>
+                                
+                                {{-- Total --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">
-                                    Rp 750.000
+                                    Rp {{ number_format($payment->amount, 0, ',', '.') }}
                                 </td>
+                                
+                                {{-- Status --}}
                                 <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Lunas
-                                    </span>
+                                    @if($payment->status === 'success')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                            Lunas
+                                        </span>
+                                    @elseif($payment->status === 'pending')
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Menunggu
+                                        </span>
+                                    @else
+                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                            Gagal
+                                        </span>
+                                    @endif
                                 </td>
+                                
+                                {{-- Aksi --}}
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button class="text-blue-600 hover:text-blue-900 flex items-center justify-end gap-1 w-full">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                        Invoice
-                                    </button>
+                                    @if($payment->status === 'success')
+                                        <a href="{{ route('course.learn', $payment->course->id) }}" 
+                                        class="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/>
+                                            </svg>
+                                            Akses Kursus
+                                        </a>
+                                    @elseif($payment->status === 'pending')
+                                        <a href="{{ route('payment.upload', $payment->id) }}" 
+                                        class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700 inline-block">
+                                            Upload Bukti
+                                        </a>
+                                    @else
+                                        <span class="text-gray-400 cursor-not-allowed">Gagal</span>
+                                    @endif
                                 </td>
                             </tr>
-
-                            {{-- ITEM 2: PENDING --}}
-                            <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                    #INV-2026-002
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">Fullstack Web Development</div>
-                                    <div class="text-xs text-gray-500">Masterclass</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    14 Jan 2026
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    GoPay
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">
-                                    Rp 750.000
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
-                                        Menunggu
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700">
-                                        Bayar Sekarang
-                                    </button>
+                            @empty
+                            <tr>
+                                <td colspan="7" class="px-6 py-12 text-center">
+                                    <div class="text-gray-400 mb-2">
+                                        <svg class="w-16 h-16 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                                        </svg>
+                                    </div>
+                                    <p class="text-gray-500 font-medium">Belum ada riwayat pembayaran</p>
+                                    <a href="/" class="text-blue-600 hover:underline text-sm mt-2 inline-block">
+                                        Jelajahi Kursus →
+                                    </a>
                                 </td>
                             </tr>
-
-                            {{-- ITEM 3: GAGAL --}}
-                            <tr class="hover:bg-gray-50 transition opacity-60">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-500">
-                                    #INV-2025-089
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">UI/UX Design Kit</div>
-                                    <div class="text-xs text-gray-500">Assets</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    20 Des 2025
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    OVO
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">
-                                    Rp 250.000
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                        Gagal
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <span class="text-gray-400 cursor-not-allowed">Hapus</span>
-                                </td>
-                            </tr>
-
-                             {{-- ITEM 4: BERHASIL --}}
-                             <tr class="hover:bg-gray-50 transition">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-blue-600">
-                                    #INV-2025-055
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-medium text-gray-900">Python Data Science</div>
-                                    <div class="text-xs text-gray-500">Bootcamp</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    10 Nov 2025
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    Kartu Kredit
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">
-                                    Rp 1.500.000
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                        Lunas
-                                    </span>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <button class="text-blue-600 hover:text-blue-900 flex items-center justify-end gap-1 w-full">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                        Invoice
-                                    </button>
-                                </td>
-                            </tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>

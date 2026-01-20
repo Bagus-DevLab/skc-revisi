@@ -84,9 +84,7 @@ Route::middleware([
         return view('my-certificates', compact('certificates'));
     })->name('my-certificates');
 
-    Route::get('/payment-history', function () {
-        return view('payment-history');
-    })->name('payment-history');
+    Route::get('/payment-history', [PaymentController::class, 'userHistory'])->name('payment-history');
 
     Route::get('/notepad', function () {
         return view('notepad');
@@ -135,9 +133,7 @@ Route::middleware([
         ));
     })->name('dashboard');
             
-        Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
-        Route::post('/courses/store', [CourseController::class, 'store'])->name('courses.store');
-        
+        Route::resource('courses', CourseController::class);
         Route::get('/users', function () { return view('admin.users-index'); })->name('users.index');
         // Route Kelola User
         Route::get('/users', [UserController::class, 'index'])->name('users.index');

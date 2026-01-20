@@ -80,9 +80,10 @@
                                         </a>
                                     </div>
                                 @else
-                                    <button class="w-full bg-blue-600 text-white text-sm font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition">
+                                    <a href="{{ route('course.learn', $course->id) }}" 
+                                    class="block w-full bg-blue-600 text-white text-sm font-bold py-2 px-4 rounded-lg hover:bg-blue-700 transition text-center">
                                         Lanjutkan Belajar
-                                    </button>
+                                    </a>
                                 @endif
                             </div>
                         </div>

@@ -90,5 +90,47 @@ class CourseController extends Controller
             ->first();
 
         return view('courses.learn', compact('course', 'enrollment'));
+    }   
+    public function edit(Course $course) {
+        return view('admin.courses-edit', compact('course'));
+    }
+
+    public function destroy(Course $course) {
+        $course->delete();
+        return redirect()->back()->with('success', 'Kursus berhasil dihapus');
+    }
+
+    public function update(Request $request, Course $course)
+    {
+        // 1. Validasi Input (Sesuaikan dengan field di database kamu)
+        $request->validate([
+            'title'       => 'required|string|max:255',
+            'category'    => 'required',
+            'price'       => 'required|numeric',
+            'duration'    => 'required|numeric',
+            'description' => 'required',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Nullable karena tidak wajib ganti gambar
+        ]);
+
+        // Ambil semua data input kecuali gambar
+        $data = $request->only(['title', 'category', 'price', 'duration', 'description']);
+
+        // 2. Handle Ganti Gambar (Jika ada file baru yang diunggah)
+        if ($request->hasFile('image')) {
+            // Hapus gambar lama dari storage agar tidak memenuhi server
+            if ($course->image) {
+                Storage::disk('public')->delete($course->image);
+            }
+            
+            // Simpan gambar baru
+            $imagePath = $request->file('image')->store('courses', 'public');
+            $data['image'] = $imagePath;
+        }
+
+        // 3. Update Data di Database
+        $course->update($data);
+
+        // 4. Redirect kembali ke dashboard dengan pesan sukses
+        return redirect()->route('admin.dashboard')->with('success', 'Kursus berhasil diperbarui!');
     }
 }

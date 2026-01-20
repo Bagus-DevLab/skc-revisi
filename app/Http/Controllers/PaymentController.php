@@ -72,4 +72,17 @@ public function approve($id)
 
     return back()->with('success', 'Pembayaran berhasil dikonfirmasi dan akses kursus telah dibuka.');
 }
+// Fungsi untuk User melihat riwayat pembayaran mereka sendiri
+public function userHistory()
+{
+    $user = Auth::user();
+    
+    // Ambil semua pembayaran user dengan relasi course
+    $payments = Payment::where('user_id', $user->id)
+                       ->with('course')
+                       ->latest()
+                       ->get();
+    
+    return view('payment-history', compact('payments'));
+}
 }
