@@ -6,6 +6,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
+  # PENTING: Pakai huruf kecil semua secara manual
   IMAGE_NAME: bagus-devlab/skc-revisi
 
 jobs:
@@ -44,29 +45,26 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_KEY }}
+          # PENTING: Kirim token GH_PAT ke environment VPS saat script jalan
+          envs: GITHUB_ACTOR
           script: |
-            # Login ke GHCR di VPS (Perlu sekali di awal, atau gunakan GH_PAT)
+            # 1. Login Docker di VPS (Pakai PAT yang kamu simpan di Secrets)
+            # Pastikan Secret 'GH_PAT' sudah ada di GitHub Repo Settings
             echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             
-            cd ~/apps/nama-aplikasi
+            # 2. Masuk ke folder project yang BENAR
+            cd ~/apps/skillconnect-revisi
             
-            # Tarik file docker-compose.prod.yml dan nginx config terbaru dari repo
-            # (Alternatif: scp file tersebut, atau git pull jika folder itu adalah git repo)
-            # Cara termudah: curl/wget file dari raw github content jika repo public, 
-            # ATAU scp file docker-compose dari runner ke VPS.
-            # Disini saya asumsikan kamu sudah copy docker-compose.prod.yml ke server sekali,
-            # atau kamu bisa tambahkan step SCP di action ini.
-            
-            # Pull image terbaru
+            # 3. Pull image terbaru (Image name hardcoded huruf kecil)
             docker compose -f docker-compose.prod.yml pull
             
-            # Restart container
+            # 4. Restart container
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
             
-            # Run migration (PENTING: Gunakan --force di production)
+            # 5. Jalankan Migration Database
             docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
             
-            # Optimize
+            # 6. Optimize Cache Laravel
             docker compose -f docker-compose.prod.yml exec -T app php artisan optimize
             docker compose -f docker-compose.prod.yml exec -T app php artisan config:cache
             docker compose -f docker-compose.prod.yml exec -T app php artisan route:cache
