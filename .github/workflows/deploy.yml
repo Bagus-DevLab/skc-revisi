@@ -1,0 +1,73 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: [ "main" ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_KEY }}
+          script: |
+            # Login ke GHCR di VPS (Perlu sekali di awal, atau gunakan GH_PAT)
+            echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            
+            cd ~/apps/nama-aplikasi
+            
+            # Tarik file docker-compose.prod.yml dan nginx config terbaru dari repo
+            # (Alternatif: scp file tersebut, atau git pull jika folder itu adalah git repo)
+            # Cara termudah: curl/wget file dari raw github content jika repo public, 
+            # ATAU scp file docker-compose dari runner ke VPS.
+            # Disini saya asumsikan kamu sudah copy docker-compose.prod.yml ke server sekali,
+            # atau kamu bisa tambahkan step SCP di action ini.
+            
+            # Pull image terbaru
+            docker compose -f docker-compose.prod.yml pull
+            
+            # Restart container
+            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            
+            # Run migration (PENTING: Gunakan --force di production)
+            docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
+            
+            # Optimize
+            docker compose -f docker-compose.prod.yml exec -T app php artisan optimize
+            docker compose -f docker-compose.prod.yml exec -T app php artisan config:cache
+            docker compose -f docker-compose.prod.yml exec -T app php artisan route:cache
+            docker compose -f docker-compose.prod.yml exec -T app php artisan view:cache
