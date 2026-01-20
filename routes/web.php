@@ -50,5 +50,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
         Route::resource('users', AdminUserController::class);
         Route::get('/payments', [AdminPaymentController::class, 'indexAdmin'])->name('payments.index');
         Route::post('/payments/{id}/approve', [AdminPaymentController::class, 'approve'])->name('payments.approve');
+        Route::post('/payments/{id}/reject', [AdminPaymentController::class, 'reject'])->name('payments.reject');
+        Route::get('/payments/{id}', [AdminPaymentController::class, 'show'])->name('payments.show');
     });
 });

@@ -31,4 +31,11 @@ Route::middleware('auth:sanctum')->group(function () {
     // Notepad (CRUD)
     Route::apiResource('notes', NoteController::class);
     Route::delete('notes/{id}', [NoteController::class, 'destroy']);
+
+    // Admin Routes
+    Route::middleware('role:admin')->prefix('admin')->name('admin.')->group(function () {
+        Route::get('/payments', [App\Http\Controllers\Api\Admin\PaymentController::class, 'index']);
+        Route::post('/payments/{id}/approve', [App\Http\Controllers\Api\Admin\PaymentController::class, 'approve']);
+        Route::post('/payments/{id}/reject', [App\Http\Controllers\Api\Admin\PaymentController::class, 'reject']);
+    });
 });

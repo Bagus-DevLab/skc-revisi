@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
@@ -8,10 +8,10 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-    public function indexAdmin()
+    public function index()
     {
         $payments = Payment::with('user', 'course')->latest()->paginate(15);
-        return view('admin.payments-index', compact('payments'));
+        return response()->json($payments);
     }
 
     public function approve(Request $request, $id)
@@ -27,7 +27,7 @@ class PaymentController extends Controller
             'last_accessed_at' => now(),
         ]);
 
-        return redirect()->route('admin.payments.index')->with('success', 'Pembayaran berhasil disetujui & user telah didaftarkan ke kursus.');
+        return response()->json(['message' => 'Pembayaran berhasil disetujui & user telah didaftarkan ke kursus.']);
     }
 
     public function reject(Request $request, $id)
@@ -36,12 +36,6 @@ class PaymentController extends Controller
         $payment->status = 'rejected';
         $payment->save();
 
-        return redirect()->route('admin.payments.index')->with('success', 'Pembayaran berhasil ditolak.');
-    }
-
-    public function show($id)
-    {
-        $payment = Payment::with('user', 'course')->findOrFail($id);
-        return view('admin.payments.show', compact('payment'));
+        return response()->json(['message' => 'Pembayaran berhasil ditolak.']);
     }
 }

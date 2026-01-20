@@ -19,7 +19,11 @@
                     <tbody class="divide-y divide-gray-100">
                         @foreach($payments as $payment)
                         <tr>
-                            <td class="px-6 py-4 text-sm">{{ $payment->user->name }}</td>
+                            <td class="px-6 py-4 text-sm">
+                                <a href="{{ route('admin.payments.show', $payment->id) }}" class="text-blue-600 underline">
+                                    {{ $payment->user->name }}
+                                </a>
+                            </td>
                             <td class="px-6 py-4 text-sm font-bold">{{ $payment->course->title }}</td>
                             <td class="px-6 py-4">
                                 @if($payment->proof_of_payment)
@@ -29,15 +33,19 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4">
-                                <span class="px-2 py-1 rounded-full text-[10px] font-bold {{ $payment->status == 'success' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700' }}">
+                                <span class="px-2 py-1 rounded-full text-[10px] font-bold {{ $payment->status == 'success' ? 'bg-green-100 text-green-700' : ($payment->status == 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700') }}">
                                     {{ strtoupper($payment->status) }}
                                 </span>
                             </td>
                             <td class="px-6 py-4 text-right">
                                 @if($payment->status == 'pending' && $payment->proof_of_payment)
-                                    <form action="{{ route('admin.payments.approve', $payment->id) }}" method="POST">
+                                <form action="{{ route('admin.payments.approve', $payment->id) }}" method="POST" class="inline">
                                         @csrf
                                         <button type="submit" class="bg-green-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-green-700">Setujui</button>
+                                    </form>
+                                    <form action="{{ route('admin.payments.reject', $payment->id) }}" method="POST" class="inline">
+                                        @csrf
+                                        <button type="submit" class="bg-red-600 text-white px-3 py-1 rounded text-xs font-bold hover:bg-red-700">Tolak</button>
                                     </form>
                                 @endif
                             </td>
