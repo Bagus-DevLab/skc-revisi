@@ -19,6 +19,7 @@ class CourseController extends Controller
         $enrollment = auth()->user()->courses()
             ->where('course_id', $course->id)
             ->first();
+            
 
         return view('courses.learn', compact('course', 'enrollment'));
     }
@@ -56,4 +57,54 @@ class CourseController extends Controller
         return redirect()->route('course.learn', $course->id)
             ->with('success', '✅ Materi berhasil diselesaikan! Progress: ' . $newProgress . '%');
     }
+
+    public function recommend(Request $request)
+{
+    // 1. Ambil semua kategori unik untuk ditampilkan di dropdown form
+    $categories = Course::distinct()->pluck('category');
+
+    // 2. Filter Kursus berdasarkan Kategori yang dipilih user
+    $query = Course::query();
+    
+    if ($request->filled('category')) {
+        $query->where('category', $request->category);
+    }
+
+    $filteredCourses = $query->get();
+
+    // Jika tidak ada kursus di kategori tersebut
+    if ($filteredCourses->isEmpty()) {
+        return redirect()->back()->with('error', 'Maaf, belum ada kursus di kategori tersebut.');
+    }
+
+    // 3. Ambil Preferensi User
+    $pPrice = $request->get('pref_price', 1);
+    $pRating = $request->get('pref_rating', 1);
+
+    // 4. Hitung Skor AHP & SAW hanya untuk kursus yang sudah difilter
+    $minPrice = Course::min('price') ?: 1;
+    $maxRating = Course::max('rating') ?: 1;
+    $baseWeights = ['price' => 0.515, 'rating' => 0.222];
+
+    $results = $filteredCourses->map(function($course) use ($minPrice, $maxRating, $baseWeights, $pPrice, $pRating) {
+        $nPrice = $minPrice / ($course->price ?: 1);
+        $nRating = ($course->rating ?: 0) / $maxRating;
+
+        $finalScore = ($nPrice * ($baseWeights['price'] * $pPrice)) + 
+                      ($nRating * ($baseWeights['rating'] * $pRating));
+
+        $course->user_match_score = $finalScore;
+        return $course;
+    });
+
+    // 5. Urutkan hasil
+    $recommended = $results->sortByDesc('user_match_score');
+
+    return view('landing', [
+        'courses' => $recommended,
+        'categories' => $categories,
+        'bestMatch' => $recommended->first(),
+        'isFiltered' => true
+    ]);
+}
 }

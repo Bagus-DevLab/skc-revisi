@@ -44,6 +44,36 @@
                                 @error('price') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </div>
 
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {{-- Input Rating (C2) --}}
+                            <div>
+                                <label for="rating" class="block text-sm font-bold text-gray-700 mb-2">Rating (1-5)</label>
+                                <input type="number" name="rating" id="rating" step="0.1" min="1" max="5" 
+                                    value="{{ old('rating', $course->rating) }}" 
+                                    class="w-full border-gray-200 rounded-lg focus:ring-blue-500 shadow-sm" required>
+                            </div>
+
+                            {{-- Input Peminat (C3) --}}
+                            <div>
+                                <label for="students_count" class="block text-sm font-bold text-gray-700 mb-2">Jumlah Peminat</label>
+                                <input type="number" name="students_count" id="students_count" 
+                                    value="{{ old('students_count', $course->students_count) }}" 
+                                    class="w-full border-gray-200 rounded-lg focus:ring-blue-500 shadow-sm" required>
+                            </div>
+
+                            {{-- Input Kesulitan (C5) --}}
+                            <div>
+                                <label for="difficulty_level" class="block text-sm font-bold text-gray-700 mb-2">Level Kesulitan</label>
+                                <select name="difficulty_level" id="difficulty_level" class="w-full border-gray-200 rounded-lg focus:ring-blue-500 shadow-sm">
+                                    <option value="1" {{ $course->difficulty_level == 1 ? 'selected' : '' }}>1 - Sangat Mudah</option>
+                                    <option value="2" {{ $course->difficulty_level == 2 ? 'selected' : '' }}>2 - Mudah</option>
+                                    <option value="3" {{ $course->difficulty_level == 3 ? 'selected' : '' }}>3 - Menengah</option>
+                                    <option value="4" {{ $course->difficulty_level == 4 ? 'selected' : '' }}>4 - Sulit</option>
+                                    <option value="5" {{ $course->difficulty_level == 5 ? 'selected' : '' }}>5 - Sangat Sulit</option>
+                                </select>
+                            </div>
+                        </div>
+
                             <div>
                                 <label class="block text-sm font-bold text-gray-700 mb-2">Thumbnail Kursus</label>
                                 <div class="flex items-start gap-4">

@@ -26,6 +26,9 @@ class CourseController extends Controller
             'duration' => 'required|numeric',
             'description' => 'required',
             'image' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+            'rating' => 'required|numeric|min:0|max:5',
+            'students_count' => 'required|numeric|min:0',
+            'difficulty_level' => 'required|in:1,2,3,4,5',
         ]);
 
         // 2. Handle Upload Gambar
@@ -42,6 +45,9 @@ class CourseController extends Controller
             'duration' => $request->duration,
             'description' => $request->description,
             'image' => $imagePath,
+            'rating' => $request->rating,
+            'students_count' => $request->students_count,
+            'difficulty_level' => $request->difficulty_level,
         ]);
 
         return redirect()->route('admin.dashboard')->with('success', 'Kursus berhasil ditambahkan!');
@@ -110,10 +116,13 @@ class CourseController extends Controller
             'duration'    => 'required|numeric',
             'description' => 'required',
             'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Nullable karena tidak wajib ganti gambar
+            'rating' => 'required|numeric|min:0|max:5',
+            'students_count' => 'required|numeric|min:0',
+            'difficulty_level' => 'required|in:1,2,3,4,5',
         ]);
 
         // Ambil semua data input kecuali gambar
-        $data = $request->only(['title', 'category', 'price', 'duration', 'description']);
+        $data = $request->only(['title', 'category', 'price', 'duration', 'description', 'rating', 'students_count', 'difficulty_level']);
 
         // 2. Handle Ganti Gambar (Jika ada file baru yang diunggah)
         if ($request->hasFile('image')) {

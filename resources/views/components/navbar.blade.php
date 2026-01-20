@@ -12,6 +12,7 @@
             <div class="hidden md:flex space-x-8 items-center">
                 <a href="{{ url('/') }}" class="text-gray-600 hover:text-blue-600 font-medium">Beranda</a>
                 <a href="#courses" class="text-gray-600 hover:text-blue-600 font-medium">Kursus</a>
+                <a href="#recommendation-form" class="text-gray-600 hover:text-blue-600 font-medium">AI Rekomendasi</a>
                 <a href="#features" class="text-gray-600 hover:text-blue-600 font-medium">Tentang</a>
                 <a href="#contact" class="text-gray-600 hover:text-blue-600 font-medium">Kontak</a>
             </div>

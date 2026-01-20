@@ -13,6 +13,9 @@ class Course extends Model
         'duration',
         'description',
         'image',
+        'rating',           // Kriteria C2
+        'students_count',   // Kriteria C3
+        'difficulty_level'  // Kriteria C5
     ];
 
     public function students()

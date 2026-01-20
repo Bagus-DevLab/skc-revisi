@@ -10,8 +10,15 @@ use Illuminate\Support\Facades\Auth;
 
 Route::get('/', function () {
     $courses = \App\Models\Course::all();
-    return view('landing', compact('courses'));
+    
+    // TAMBAHKAN BARIS INI: Ambil kategori unik untuk isi dropdown
+    $categories = \App\Models\Course::distinct()->pluck('category');
+
+    // Kirim $categories ke view
+    return view('landing', compact('courses', 'categories'));
 });
+
+Route::get('/recommendations', [App\Http\Controllers\CourseController::class, 'recommend'])->name('course.recommend');
 
 Route::get('/course/{id}/checkout', [PaymentController::class, 'checkout'])->name('course.checkout');
 Route::post('/course/{id}/checkout', [PaymentController::class, 'store'])->name('course.store');
