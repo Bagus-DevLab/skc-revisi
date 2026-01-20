@@ -18,7 +18,7 @@ class ApiPaymentTest extends TestCase
     public function test_authenticated_user_can_get_payment_history()
     {
         $user = User::factory()->create();
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => 'Pemula']);
         Payment::factory()->count(5)->create([
             'user_id' => $user->id,
             'course_id' => $course->id,

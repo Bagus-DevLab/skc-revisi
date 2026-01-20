@@ -28,7 +28,7 @@ class PaymentHistoryTest extends TestCase
     public function test_payment_history_displays_payments()
     {
         $user = User::factory()->create();
-        $course = Course::factory()->create(); // Assuming a CourseFactory exists
+        $course = Course::factory()->create(['difficulty_level' => 'Pemula']); // Assuming a CourseFactory exists
         
         $payment1 = Payment::factory()->create([
             'user_id' => $user->id,
@@ -57,7 +57,7 @@ class PaymentHistoryTest extends TestCase
     public function test_rejected_payment_displays_rejection_reason()
     {
         $user = User::factory()->create();
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => 'Pemula']);
         
         $payment = Payment::factory()->create([
             'user_id' => $user->id,
@@ -79,7 +79,7 @@ class PaymentHistoryTest extends TestCase
     public function test_rejected_payment_without_reason_displays_default_message()
     {
         $user = User::factory()->create();
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => 'Pemula']);
         
         $payment = Payment::factory()->create([
             'user_id' => $user->id,

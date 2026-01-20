@@ -17,7 +17,7 @@ class ApiCourseTest extends TestCase
 
     public function test_can_get_public_course_list()
     {
-        Course::factory()->count(3)->create();
+        Course::factory()->count(3)->create(['difficulty_level' => 'Pemula']);
 
         $response = $this->getJson('/api/courses');
 
@@ -27,7 +27,7 @@ class ApiCourseTest extends TestCase
 
     public function test_can_get_single_course_details()
     {
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => 'Pemula']);
         Lesson::factory()->count(2)->create(['course_id' => $course->id]); // Assuming LessonFactory exists
 
         $response = $this->getJson('/api/courses/' . $course->id);
@@ -40,7 +40,7 @@ class ApiCourseTest extends TestCase
     public function test_authenticated_user_can_get_my_courses()
     {
         $user = User::factory()->create();
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => 'Pemula']);
         $user->courses()->attach($course->id, ['progress' => 50, 'status' => 'active']);
 
         Sanctum::actingAs($user);
@@ -55,8 +55,8 @@ class ApiCourseTest extends TestCase
     public function test_authenticated_user_can_get_my_certificates()
     {
         $user = User::factory()->create();
-        $course1 = Course::factory()->create();
-        $course2 = Course::factory()->create();
+        $course1 = Course::factory()->create(['difficulty_level' => 'Pemula']);
+        $course2 = Course::factory()->create(['difficulty_level' => 'Pemula']);
         $user->courses()->attach($course1->id, ['status' => 'finished']);
         $user->courses()->attach($course2->id, ['status' => 'active']);
 
@@ -73,7 +73,7 @@ class ApiCourseTest extends TestCase
     public function test_authenticated_user_can_get_course_lessons()
     {
         $user = User::factory()->create();
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => 'Pemula']);
         $user->courses()->attach($course->id); // Enroll user in the course
         Lesson::factory()->count(3)->create(['course_id' => $course->id]);
 
@@ -88,7 +88,7 @@ class ApiCourseTest extends TestCase
     public function test_unauthorized_user_cannot_get_course_lessons()
     {
         $user = User::factory()->create();
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => 'Pemula']);
         Lesson::factory()->count(3)->create(['course_id' => $course->id]);
 
         // User not enrolled in the course
@@ -102,7 +102,7 @@ class ApiCourseTest extends TestCase
     public function test_can_complete_lesson()
     {
         $user = User::factory()->create();
-        $course = Course::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => 'Pemula']);
         $user->courses()->attach($course->id);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
 
