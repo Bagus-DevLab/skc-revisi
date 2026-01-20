@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\CourseController;
 use App\Http\Controllers\Api\DashboardController;
 use App\Http\Controllers\Api\PaymentController;
 use App\Http\Controllers\Api\NoteController;
+use App\Http\Controllers\Api\UserProfileController;
 
 // Public Routes
 Route::post('/login', [AuthController::class, 'login']);
@@ -16,6 +17,7 @@ Route::get('/courses', [CourseController::class, 'index']); // List kursus di la
 // Protected Routes (Harus pakai Token)
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) { return $request->user(); });
+    Route::post('/update-profile', [UserProfileController::class, 'update']);
     
     // Dashboard & My Courses
     Route::get('/dashboard-stats', [DashboardController::class, 'stats']);
@@ -28,4 +30,5 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Notepad (CRUD)
     Route::apiResource('notes', NoteController::class);
+    Route::delete('notes/{id}', [NoteController::class, 'destroy']);
 });

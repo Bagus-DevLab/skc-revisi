@@ -30,6 +30,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role', // Tambahkan ini
+        'avatar',
     ];
 
     public function courses()
@@ -38,6 +39,8 @@ class User extends Authenticatable
                     ->withPivot('progress', 'status', 'last_accessed_at')
                     ->withTimestamps();
     }
+
+    
 
     /**
      * The attributes that should be hidden for serialization.
@@ -51,6 +54,13 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
+    // app/Models/User.php
+
+    public function notes()
+    {
+        // Mengasumsikan satu User memiliki banyak Note (One-to-Many)
+        return $this->hasMany(Note::class);
+    }
     /**
      * The accessors to append to the model's array form.
      *
