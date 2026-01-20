@@ -53,12 +53,29 @@ Route::middleware([
     // ==========================================
     // Route ini harus bisa diakses user biasa, jadi taruh diluar grup admin
     
-    Route::get('/my-courses', function () { 
-        return view('my-courses'); 
+    Route::get('/my-courses', function () {
+        $user = Auth::user();
+        
+        // Ganti tanda titik (.) sebelum get() menjadi panah (->)
+        $enrollments = $user->courses()->withPivot('progress', 'status')->get();
+
+        // Hitung statistik untuk header
+        $totalCourses = $enrollments->count();
+        $ongoingCount = $enrollments->where('pivot.status', 'active')->count();
+        $finishedCount = $enrollments->where('pivot.status', 'finished')->count();
+
+        return view('my-courses', compact('enrollments', 'totalCourses', 'ongoingCount', 'finishedCount'));
     })->name('my-courses');
 
     Route::get('/my-certificates', function () {
-        return view('my-certificates');
+        $user = Auth::user();
+        
+        // Ambil kursus yang statusnya 'finished' di tabel pivot enrollments
+        $certificates = $user->courses()
+                            ->wherePivot('status', 'finished')
+                            ->get();
+
+        return view('my-certificates', compact('certificates'));
     })->name('my-certificates');
 
     Route::get('/payment-history', function () {
@@ -68,6 +85,8 @@ Route::middleware([
     Route::get('/notepad', function () {
         return view('notepad');
     })->name('notepad');
+
+    
 
 
     // ==========================================
