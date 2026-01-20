@@ -9,26 +9,45 @@
                 </div>
 
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
+                    @if(Auth::user()->role === 'admin')
+                        {{-- MENU KHUSUS ADMIN --}}
+                        <x-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
 
-                    <x-nav-link href="{{ route('my-courses') }}" :active="request()->routeIs('my-courses')">
-                        {{ __('My Courses') }}
-                    </x-nav-link>
+                        <x-nav-link href="{{ route('admin.courses.create') }}" :active="request()->routeIs('admin.courses.create')">
+                            {{ __('Tambah Course') }}
+                        </x-nav-link>
 
-                    <x-nav-link href="{{ route('my-certificates') }}" :active="request()->routeIs('my-certificates')">
-                        {{ __('My Certificates') }}
-                    </x-nav-link>
+                        <x-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.users.index')">
+                            {{ __('Kelola User') }}
+                        </x-nav-link>
 
-                    <x-nav-link href="{{ route('payment-history') }}" :active="request()->routeIs('payment-history')">
-                        {{ __('History Payment') }}
-                    </x-nav-link>
+                        <x-nav-link href="{{ route('admin.payments.index') }}" :active="request()->routeIs('admin.payments.index')">
+                            {{ __('Konfirmasi Payment') }}
+                        </x-nav-link>
+                    @else
+                        {{-- MENU KHUSUS USER --}}
+                        <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                            {{ __('Dashboard') }}
+                        </x-nav-link>
 
-                    {{-- MENU BARU: NOTEPAD --}}
-                    <x-nav-link href="{{ route('notepad') }}" :active="request()->routeIs('notepad')">
-                        {{ __('Notepad') }}
-                    </x-nav-link>
+                        <x-nav-link href="{{ route('my-courses') }}" :active="request()->routeIs('my-courses')">
+                            {{ __('My Courses') }}
+                        </x-nav-link>
+
+                        <x-nav-link href="{{ route('my-certificates') }}" :active="request()->routeIs('my-certificates')">
+                            {{ __('My Certificates') }}
+                        </x-nav-link>
+
+                        <x-nav-link href="{{ route('payment-history') }}" :active="request()->routeIs('payment-history')">
+                            {{ __('History Payment') }}
+                        </x-nav-link>
+
+                        <x-nav-link href="{{ route('notepad') }}" :active="request()->routeIs('notepad')">
+                            {{ __('Notepad') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -136,26 +155,38 @@
 
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link href="{{ route('my-courses') }}" :active="request()->routeIs('my-courses')">
-                {{ __('My Courses') }}
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link href="{{ route('my-certificates') }}" :active="request()->routeIs('my-certificates')">
-                {{ __('My Certificates') }}
-            </x-responsive-nav-link>
-
-            <x-responsive-nav-link href="{{ route('payment-history') }}" :active="request()->routeIs('payment-history')">
-                {{ __('History Payment') }}
-            </x-responsive-nav-link>
-
-            {{-- MENU BARU MOBILE: NOTEPAD --}}
-            <x-responsive-nav-link href="{{ route('notepad') }}" :active="request()->routeIs('notepad')">
-                {{ __('Notepad') }}
-            </x-responsive-nav-link>
+            @if(Auth::user()->role === 'admin')
+                {{-- RESPONSIVE ADMIN --}}
+                <x-responsive-nav-link href="{{ route('admin.dashboard') }}" :active="request()->routeIs('admin.dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('admin.courses.create') }}" :active="request()->routeIs('admin.courses.create')">
+                    {{ __('Tambah Course') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('admin.users.index') }}" :active="request()->routeIs('admin.users.index')">
+                    {{ __('Kelola User') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('admin.payments.index') }}" :active="request()->routeIs('admin.payments.index')">
+                    {{ __('Konfirmasi Payment') }}
+                </x-responsive-nav-link>
+            @else
+                {{-- RESPONSIVE USER --}}
+                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
+                    {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('my-courses') }}" :active="request()->routeIs('my-courses')">
+                    {{ __('My Courses') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('my-certificates') }}" :active="request()->routeIs('my-certificates')">
+                    {{ __('My Certificates') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('payment-history') }}" :active="request()->routeIs('payment-history')">
+                    {{ __('History Payment') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('notepad') }}" :active="request()->routeIs('notepad')">
+                    {{ __('Notepad') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <div class="pt-4 pb-1 border-t border-gray-200">
@@ -165,7 +196,6 @@
                         <img class="size-10 rounded-full object-cover" src="{{ Auth::user()->profile_photo_url }}" alt="{{ Auth::user()->name }}" />
                     </div>
                 @endif
-
                 <div>
                     <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
                     <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>

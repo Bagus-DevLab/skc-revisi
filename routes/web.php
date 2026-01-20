@@ -1,5 +1,9 @@
 <?php
 
+use App\Http\Controllers\Admin\CourseController;
+use App\Http\Controllers\Admin\UserController;
+use App\Models\Course;
+use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -17,11 +21,32 @@ Route::middleware([
 
     // 1. Route Dashboard Umum
     Route::get('/dashboard', function () {
-        if (Auth::user()->role === 'admin') {
-            return redirect()->route('admin.dashboard');
-        }
-        return view('dashboard');
-    })->name('dashboard');
+    if (Auth::user()->role === 'admin') {
+        return redirect()->route('admin.dashboard');
+    }
+
+    $user = Auth::user();
+    
+    // 1. Ambil Kursus yang diikuti user
+    $enrollments = $user->courses; 
+
+    // 2. Statistik
+    $activeCoursesCount = $user->courses()->wherePivot('status', 'active')->count();
+    $finishedCoursesCount = $user->courses()->wherePivot('status', 'finished')->count();
+    $totalInvestment = $user->courses()->sum('price');
+
+    // 3. Ambil 1 Kursus Terakhir yang diakses (untuk banner utama)
+    $lastCourse = $user->courses()
+                       ->orderByPivot('last_accessed_at', 'desc')
+                       ->first();
+
+    return view('dashboard', compact(
+        'activeCoursesCount', 
+        'finishedCoursesCount', 
+        'totalInvestment', 
+        'lastCourse'
+    ));
+})->name('dashboard');
 
     // ==========================================
     // 2. ROUTE MENU USER (TARUH DISINI)
@@ -51,10 +76,38 @@ Route::middleware([
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         
         Route::get('/dashboard', function () {
-            return view('admin.dashboard');
-        })->name('dashboard'); // Ini jadinya admin.dashboard
+        // Ambil data asli
+        $courses = Course::latest()->get();
+        $totalUsers = User::where('role', 'user')->count();
+        $totalCourses = Course::count();
         
-        // Tambahkan route khusus admin lainnya disini
+        // Ambil 5 user terbaru yang baru mendaftar
+        $recentUsers = User::where('role', 'user')->latest()->take(5)->get();
+
+        // Placeholder untuk Payment (nanti diisi jika tabel payment sudah ada)
+        $pendingPaymentsCount = 0; 
+        $totalRevenue = 0;
+
+        return view('admin.dashboard', compact(
+            'courses', 
+            'totalUsers', 
+            'totalCourses', 
+            'recentUsers',
+            'pendingPaymentsCount',
+            'totalRevenue'
+        ));
+    })->name('dashboard');
+            
+        Route::get('/courses/create', [CourseController::class, 'create'])->name('courses.create');
+        Route::post('/courses/store', [CourseController::class, 'store'])->name('courses.store');
+        
+        Route::get('/users', function () { return view('admin.users-index'); })->name('users.index');
+        Route::get('/payments', function () { return view('admin.payments-index'); })->name('payments.index');
+        // Route Kelola User
+        Route::get('/users', [UserController::class, 'index'])->name('users.index');
+        Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
     });
 
 });

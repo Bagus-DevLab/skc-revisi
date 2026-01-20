@@ -32,6 +32,13 @@ class User extends Authenticatable
         'role', // Tambahkan ini
     ];
 
+    public function courses()
+    {
+        return $this->belongsToMany(Course::class, 'enrollments')
+                    ->withPivot('progress', 'status', 'last_accessed_at')
+                    ->withTimestamps();
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
