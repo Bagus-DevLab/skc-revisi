@@ -128,12 +128,15 @@ Route::middleware([
         Route::post('/courses/store', [CourseController::class, 'store'])->name('courses.store');
         
         Route::get('/users', function () { return view('admin.users-index'); })->name('users.index');
-        Route::get('/payments', function () { return view('admin.payments-index'); })->name('payments.index');
         // Route Kelola User
         Route::get('/users', [UserController::class, 'index'])->name('users.index');
         Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
         Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
         Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+            Route::get('/payments', [PaymentController::class, 'indexAdmin'])->name('payments.index');
+        Route::post('/payments/{id}/approve', [PaymentController::class, 'approve'])->name('payments.approve');
+
+
     });
 
 });

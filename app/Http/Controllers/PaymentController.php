@@ -6,7 +6,7 @@ use App\Models\Course;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
+use App\Models\Enrollment;
 class PaymentController extends Controller {
     // 1. Pilih Metode Pembayaran
     public function checkout($id) {
@@ -45,4 +45,31 @@ class PaymentController extends Controller {
 
         return redirect()->route('dashboard')->with('success', 'Bukti berhasil diupload, tunggu konfirmasi admin.');
     }
+
+    // Fungsi untuk Admin melihat daftar pembayaran masuk
+public function indexAdmin()
+{
+    $payments = Payment::with(['user', 'course'])->latest()->get();
+    return view('admin.payments-index', compact('payments'));
+}
+
+// Fungsi untuk Admin menyetujui pembayaran
+public function approve($id)
+{
+    $payment = Payment::findOrFail($id);
+    
+    // 1. Update status payment menjadi success
+    $payment->update(['status' => 'success']);
+
+    // 2. Buat data Enrollment agar kursus muncul di dashboard user
+    Enrollment::create([
+        'user_id' => $payment->user_id,
+        'course_id' => $payment->course_id,
+        'progress' => 0,
+        'status' => 'active',
+        'last_accessed_at' => now()
+    ]);
+
+    return back()->with('success', 'Pembayaran berhasil dikonfirmasi dan akses kursus telah dibuka.');
+}
 }

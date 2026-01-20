@@ -3,16 +3,29 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\NoteController;
 
-// Route Public (Tidak perlu token)
-Route::post('/register', [AuthController::class, 'register']);
+// Public Routes
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register']);
+Route::get('/courses', [CourseController::class, 'index']); // List kursus di landing
 
-// Route Protected (Harus ada token Bearer)
+// Protected Routes (Harus pakai Token)
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', [AuthController::class, 'user']);
+    Route::get('/user', function (Request $request) { return $request->user(); });
     
-    // Nanti kamu bisa tambah route lain di sini, misal:
-    // Route::get('/courses', [CourseController::class, 'index']);
+    // Dashboard & My Courses
+    Route::get('/dashboard-stats', [DashboardController::class, 'stats']);
+    Route::get('/my-courses', [CourseController::class, 'myCourses']);
+    Route::get('/my-certificates', [CourseController::class, 'myCertificates']);
+    
+    // Payment
+    Route::post('/checkout/{id}', [PaymentController::class, 'checkout']);
+    Route::post('/payment/upload/{id}', [PaymentController::class, 'uploadProof']);
+    
+    // Notepad (CRUD)
+    Route::apiResource('notes', NoteController::class);
 });
