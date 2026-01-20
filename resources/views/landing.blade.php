@@ -18,7 +18,7 @@
                 </a>
             </div>
 
-            {{-- Stats Area (Full 4 Kolom) --}}
+            {{-- Stats Area --}}
             <div class="grid grid-cols-2 gap-8 md:grid-cols-4 border-t border-gray-200 pt-10">
                 <div>
                     <div class="text-3xl font-bold text-blue-600">10,000+</div>
@@ -40,7 +40,7 @@
         </div>
     </section>
 
-    {{-- 2. FEATURES SECTION (Full 6 Fitur) --}}
+    {{-- 2. FEATURES SECTION --}}
     <section id="features" class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-16">
@@ -116,7 +116,7 @@
         </div>
     </section>
 
-    {{-- 3. COURSES SECTION (Full 3 Kartu) --}}
+    {{-- 3. COURSES SECTION (Dengan Tombol Daftar) --}}
     <section id="courses" class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between items-end mb-10">
@@ -144,6 +144,10 @@
                         </div>
                         <div class="mt-auto flex justify-between items-center pt-4 border-t border-gray-100">
                             <span class="text-xl font-bold text-blue-600">Rp 750.000</span>
+                            {{-- TOMBOL DAFTAR --}}
+                            <a href="{{ route('login') }}" class="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition">
+                                Daftar
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -162,6 +166,10 @@
                         </div>
                         <div class="mt-auto flex justify-between items-center pt-4 border-t border-gray-100">
                             <span class="text-xl font-bold text-blue-600">Rp 850.000</span>
+                            {{-- TOMBOL DAFTAR --}}
+                            <a href="{{ route('login') }}" class="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition">
+                                Daftar
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -180,6 +188,10 @@
                         </div>
                         <div class="mt-auto flex justify-between items-center pt-4 border-t border-gray-100">
                             <span class="text-xl font-bold text-blue-600">Rp 750.000</span>
+                            {{-- TOMBOL DAFTAR --}}
+                            <a href="{{ route('login') }}" class="px-4 py-2 bg-blue-600 text-white text-sm font-bold rounded-lg hover:bg-blue-700 transition">
+                                Daftar
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -198,7 +210,7 @@
         <div class="max-w-4xl mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold text-white sm:text-4xl mb-6">Siap Memulai Perjalanan Belajar Anda?</h2>
             <p class="text-blue-100 text-lg mb-8">Bergabunglah dengan ribuan peserta lain dan tingkatkan keterampilan Anda hari ini.</p>
-            <a href="#" class="inline-block px-8 py-4 bg-white text-blue-600 font-bold rounded-lg shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1">
+            <a href="{{ route('login') }}" class="inline-block px-8 py-4 bg-white text-blue-600 font-bold rounded-lg shadow-lg hover:bg-gray-100 transition transform hover:-translate-y-1">
                 Lihat Kursus Saya
             </a>
         </div>
