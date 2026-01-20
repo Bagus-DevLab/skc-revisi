@@ -2,8 +2,8 @@ version: '3.8'
 
 services:
   app:
-    image: ghcr.io/USERNAME_GITHUB/NAMA_REPO:latest
-    container_name: nama_aplikasi_app
+    image: ghcr.io/bagus-devlab/skc-revisi:latest
+    container_name: skc-app
     restart: always
     volumes:
       # Mount folder database agar SQLite tidak hilang saat redeploy
