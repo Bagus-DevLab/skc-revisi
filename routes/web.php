@@ -40,6 +40,10 @@ Route::middleware([
         return view('payment-history');
     })->name('payment-history');
 
+    Route::get('/notepad', function () {
+        return view('notepad');
+    })->name('notepad');
+
 
     // ==========================================
     // 3. ROUTE KHUSUS ADMIN

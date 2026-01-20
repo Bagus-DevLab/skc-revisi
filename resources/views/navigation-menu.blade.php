@@ -24,6 +24,11 @@
                     <x-nav-link href="{{ route('payment-history') }}" :active="request()->routeIs('payment-history')">
                         {{ __('History Payment') }}
                     </x-nav-link>
+
+                    {{-- MENU BARU: NOTEPAD --}}
+                    <x-nav-link href="{{ route('notepad') }}" :active="request()->routeIs('notepad')">
+                        {{ __('Notepad') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -145,6 +150,11 @@
 
             <x-responsive-nav-link href="{{ route('payment-history') }}" :active="request()->routeIs('payment-history')">
                 {{ __('History Payment') }}
+            </x-responsive-nav-link>
+
+            {{-- MENU BARU MOBILE: NOTEPAD --}}
+            <x-responsive-nav-link href="{{ route('notepad') }}" :active="request()->routeIs('notepad')">
+                {{ __('Notepad') }}
             </x-responsive-nav-link>
         </div>
 
