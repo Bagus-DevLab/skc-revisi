@@ -39,4 +39,12 @@ class PaymentController extends Controller
         
         return response()->json(['message' => 'Gagal mengunggah'], 400);
     }
+
+    // User's payment history
+    public function history(Request $request)
+    {
+        $payments = $request->user()->payments()->with('course')->latest()->paginate(10);
+        
+        return response()->json($payments);
+    }
 }

@@ -61,6 +61,11 @@ class User extends Authenticatable
         // Mengasumsikan satu User memiliki banyak Note (One-to-Many)
         return $this->hasMany(Note::class);
     }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
     /**
      * The accessors to append to the model's array form.
      *

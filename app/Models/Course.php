@@ -24,4 +24,9 @@ class Course extends Model
                 ->withPivot('progress', 'status', 'last_accessed_at')
                 ->withTimestamps();
 }
+
+    public function lessons()
+    {
+        return $this->hasMany(Lesson::class);
+    }
 }
