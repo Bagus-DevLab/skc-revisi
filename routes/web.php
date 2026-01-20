@@ -95,6 +95,17 @@ Route::middleware([
     Route::get('/download-certificate/{course_id}', [CourseController::class, 'downloadCertificate'])
      ->name('certificate.download');
 
+    Route::get('/course/{course}/learn', [App\Http\Controllers\CourseController::class, 'learn'])
+    ->name('course.learn');
+
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/course/{course}/learn', [App\Http\Controllers\CourseController::class, 'learn'])
+        ->name('course.learn');
+    
+    // Route baru untuk update progress
+    Route::post('/course/{course}/complete-lesson', [App\Http\Controllers\CourseController::class, 'completeLesson'])
+        ->name('course.complete-lesson');
+    });
 
     // ==========================================
     // 3. ROUTE KHUSUS ADMIN

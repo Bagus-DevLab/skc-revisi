@@ -75,4 +75,20 @@ class CourseController extends Controller
         $pdf = Pdf::loadView('pdf.certificate', $data)->setPaper('a4', 'landscape');
         return $pdf->download('Sertifikat-' . $course->title . '.pdf');
     }
+
+    public function learn(Course $course)
+    {
+        // Pastikan user sudah enroll di kursus ini
+        if (!auth()->user()->courses()->where('course_id', $course->id)->exists()) {
+            return redirect()->route('courses.index')
+                ->with('error', 'Anda belum terdaftar di kursus ini.');
+        }
+
+        // Ambil data enrollment user
+        $enrollment = auth()->user()->courses()
+            ->where('course_id', $course->id)
+            ->first();
+
+        return view('courses.learn', compact('course', 'enrollment'));
+    }
 }

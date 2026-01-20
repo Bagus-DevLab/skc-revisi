@@ -66,9 +66,10 @@
                                         <div class="w-full bg-gray-100 rounded-full h-1.5">
                                             <div class="bg-blue-600 h-1.5 rounded-full transition-all duration-500" style="width: {{ $lastCourse->pivot->progress }}%"></div>
                                         </div>
-                                        <button class="mt-4 bg-blue-600 text-white text-xs font-bold py-2 px-6 rounded-lg hover:bg-blue-700 transition shadow-sm">
-                                            LANJUTKAN
-                                        </button>
+                                        <a href="{{ route('course.learn', $lastCourse->id) }}" 
+                                            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition">
+                                                LANJUTKAN
+                                        </a>
                                     </div>
                                 </div>
                             </div>
