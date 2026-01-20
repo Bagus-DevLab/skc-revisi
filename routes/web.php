@@ -2,15 +2,21 @@
 
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\PaymentController;
 use App\Models\Course;
 use App\Models\User;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-// Landing Page
 Route::get('/', function () {
-    return view('landing');
+    $courses = \App\Models\Course::all();
+    return view('landing', compact('courses'));
 });
+
+Route::get('/course/{id}/checkout', [PaymentController::class, 'checkout'])->name('course.checkout');
+Route::post('/course/{id}/checkout', [PaymentController::class, 'store'])->name('course.store');
+Route::get('/payment/{id}/upload', [PaymentController::class, 'uploadPage'])->name('payment.upload');
+Route::post('/payment/{id}/upload', [PaymentController::class, 'processUpload'])->name('payment.process');
 
 // Logic Auth (User yang sudah login)
 Route::middleware([
@@ -86,7 +92,8 @@ Route::middleware([
         return view('notepad');
     })->name('notepad');
 
-    
+    Route::get('/download-certificate/{course_id}', [CourseController::class, 'downloadCertificate'])
+     ->name('certificate.download');
 
 
     // ==========================================

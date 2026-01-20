@@ -64,8 +64,12 @@
 
                             <div class="flex gap-3">
                                 <button class="flex-1 bg-blue-600 text-white text-sm font-bold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition flex justify-center items-center gap-2">
+                                    {{-- Cari bagian tombol unduh di my-certificates.blade.php --}}
+                                <a href="{{ route('certificate.download', $cert->id) }}" 
+                                class="flex-1 bg-blue-600 text-white text-sm font-bold py-2.5 px-4 rounded-lg hover:bg-blue-700 transition flex justify-center items-center gap-2 text-center">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                                     Unduh Sertifikat
+                                </a>
                                 </button>
                             </div>
                         </div>

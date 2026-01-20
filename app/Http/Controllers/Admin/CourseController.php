@@ -5,15 +5,19 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Course;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; // Import Auth yang benar
 use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf; // Import PDF Facade
 
 class CourseController extends Controller
 {
-    public function create() {
+    public function create()
+    {
         return view('admin.courses-create');
     }
 
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         // 1. Validasi Input
         $request->validate([
             'title' => 'required|string|max:255',
@@ -41,5 +45,34 @@ class CourseController extends Controller
         ]);
 
         return redirect()->route('admin.dashboard')->with('success', 'Kursus berhasil ditambahkan!');
+    }
+
+    public function downloadCertificate($courseId)
+    {
+        $user = Auth::user();
+
+        // Ambil data kursus dan pastikan statusnya 'finished'
+        $course = $user->courses()
+            ->where('course_id', $courseId)
+            ->wherePivot('status', 'finished')
+            ->firstOrFail();
+
+        $data = [
+            'name' => $user->name,
+            'course_title' => $course->title,
+            'date' => now()->format('d F Y'),
+            'cert_id' => 'SC-' . $course->id . $user->id . '-' . rand(1000, 9999)
+        ];
+
+        /** * CATATAN PENTING:
+         * Pilih salah satu opsi di bawah ini.
+         */
+
+        // OPSI A: Jika library DomPDF BELUM terinstall (Hanya menampilkan HTML di browser)
+        // return view('pdf.certificate', $data);
+
+        // OPSI B: Jika library DomPDF SUDAH terinstall (Download PDF otomatis)
+        $pdf = Pdf::loadView('pdf.certificate', $data)->setPaper('a4', 'landscape');
+        return $pdf->download('Sertifikat-' . $course->title . '.pdf');
     }
 }
