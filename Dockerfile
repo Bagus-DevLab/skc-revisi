@@ -1,14 +1,4 @@
-# --- Stage 1: Build Assets (Node.js) ---
-FROM node:20-alpine as frontend
-WORKDIR /app
-COPY package*.json ./
-# Install all dependencies including dev
-RUN npm install
-COPY . .
-# Build assets (hasilnya akan ada di public/build)
-RUN npm run build
-
-# --- Stage 2: PHP Setup ---
+# --- Stage 1: PHP Setup ---
 FROM php:8.2-fpm-alpine
 
 # Install system dependencies
@@ -33,9 +23,6 @@ WORKDIR /var/www
 
 # Copy application files
 COPY . .
-
-# Copy built assets from frontend stage
-COPY --from=frontend /app/public/build /var/www/public/build
 
 # Install composer dependencies
 RUN composer install --optimize-autoloader --no-dev

@@ -1,4 +1,4 @@
-name: Deploy to VPS
+name: Deploy to Production
 
 on:
   push:
@@ -6,10 +6,10 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: bagus-devlab/skc-revisi
+  IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -17,50 +17,62 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Log in to the Container registry
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
       - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
 
   deploy:
-    needs: build-and-push
+    needs: build
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
-        uses: appleboy/ssh-action@v0.1.10
+      - name: Deploy to VPS
+        uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_KEY }}
           script: |
-            # Navigate to the project directory
-            cd ~/apps/skillconnect-revisi
+            # Navigate to the project directory on your VPS
+            # Make sure to change this to your actual project path
+            cd /var/www/skillconnect
 
-            # Create .env file from secret
+            # Create .env file from GitHub secret
+            # Make sure to set the PROD_ENV secret in your repository settings
             echo "${{ secrets.PROD_ENV }}" > .env
 
             # Log in to GitHub Container Registry
-            echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
 
-            # Pull the latest image and restart services
-            docker compose -f docker-compose.prod.yml pull
-            docker compose -f docker-compose.prod.yml up -d --remove-orphans
+            # Pull the latest Docker image
+            docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:main
 
+            # Update the application
+            docker compose -f docker-compose.prod.yml up -d --build
+            
             # Run database migrations
             docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
 
-            # Optimize Laravel
-            docker compose -f docker-compose.prod.yml exec -T app php artisan optimize:clear
-            docker compose -f docker-compose.prod.yml exec -T app php artisan optimize
+            # Clear and cache configuration
+            docker compose -f docker-compose.prod.yml exec -T app php artisan config:cache
+            docker compose -f docker-compose.prod.yml exec -T app php artisan route:cache
+            docker compose -f docker-compose.prod.yml exec -T app php artisan view:cache
