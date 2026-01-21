@@ -6,7 +6,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  # PENTING: Pakai huruf kecil semua secara manual
   IMAGE_NAME: bagus-devlab/skc-revisi
 
 jobs:
@@ -45,27 +44,23 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_KEY }}
-          # PENTING: Kirim token GH_PAT ke environment VPS saat script jalan
-          envs: GITHUB_ACTOR
           script: |
-            # 1. Login Docker di VPS (Pakai PAT yang kamu simpan di Secrets)
-            # Pastikan Secret 'GH_PAT' sudah ada di GitHub Repo Settings
-            echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-            
-            # 2. Masuk ke folder project yang BENAR
+            # Navigate to the project directory
             cd ~/apps/skillconnect-revisi
-            
-            # 3. Pull image terbaru (Image name hardcoded huruf kecil)
+
+            # Create .env file from secret
+            echo "${{ secrets.PROD_ENV }}" > .env
+
+            # Log in to GitHub Container Registry
+            echo "${{ secrets.GH_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+            # Pull the latest image and restart services
             docker compose -f docker-compose.prod.yml pull
-            
-            # 4. Restart container
             docker compose -f docker-compose.prod.yml up -d --remove-orphans
-            
-            # 5. Jalankan Migration Database
+
+            # Run database migrations
             docker compose -f docker-compose.prod.yml exec -T app php artisan migrate --force
-            
-            # 6. Optimize Cache Laravel
+
+            # Optimize Laravel
+            docker compose -f docker-compose.prod.yml exec -T app php artisan optimize:clear
             docker compose -f docker-compose.prod.yml exec -T app php artisan optimize
-            docker compose -f docker-compose.prod.yml exec -T app php artisan config:cache
-            docker compose -f docker-compose.prod.yml exec -T app php artisan route:cache
-            docker compose -f docker-compose.prod.yml exec -T app php artisan view:cache

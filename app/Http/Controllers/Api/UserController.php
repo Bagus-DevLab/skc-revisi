@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
-class UserProfileController extends Controller
+class UserController extends Controller
 {
     public function update(Request $request)
     {

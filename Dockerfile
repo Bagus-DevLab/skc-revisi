@@ -1,51 +1,48 @@
-# --- Stage 1: Build Assets (Tailwind/Vite) ---
+# --- Stage 1: Build Assets (Node.js) ---
 FROM node:20-alpine as frontend
 WORKDIR /app
-COPY package*.json vite.config.js ./
-RUN npm install
-COPY resources/ ./resources/
-COPY public/ ./public/
+COPY package*.json ./
+# Install only production dependencies first
+RUN npm install --omit=dev
+COPY . .
 # Build assets (hasilnya akan ada di public/build)
 RUN npm run build
 
 # --- Stage 2: PHP Setup ---
-FROM php:8.2-fpm
+FROM php:8.2-fpm-alpine
 
-# Install dependencies sistem
-RUN apt-get update && apt-get install -y \
+# Install system dependencies
+RUN apk add --no-cache \
     git \
     curl \
     libpng-dev \
-    libonig-dev \
     libxml2-dev \
     zip \
     unzip \
-    libsqlite3-dev
+    sqlite-dev \
+    oniguruma-dev \
+    gd-dev
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install PHP extensions yang dibutuhkan Laravel
+# Install PHP extensions for Laravel
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd pdo_sqlite
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Set working directory
 WORKDIR /var/www
 
-# Copy seluruh file project
-COPY . /var/www
+# Copy application files
+COPY . .
 
-# Copy hasil build frontend dari Stage 1
+# Copy built assets from frontend stage
 COPY --from=frontend /app/public/build /var/www/public/build
 
-# Install dependency PHP (tanpa dev dependencies untuk prod)
+# Install composer dependencies
 RUN composer install --optimize-autoloader --no-dev
 
-# Permission (PENTING untuk SQLite)
-# Kita set owner ke www-data agar Nginx/PHP bisa tulis ke database.sqlite
+# Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/database
+RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache /var/www/database
 
 EXPOSE 9000
 CMD ["php-fpm"]
