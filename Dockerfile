@@ -2,8 +2,8 @@
 FROM node:20-alpine as frontend
 WORKDIR /app
 COPY package*.json ./
-# Install only production dependencies first
-RUN npm install --omit=dev
+# Install all dependencies including dev
+RUN npm install
 COPY . .
 # Build assets (hasilnya akan ada di public/build)
 RUN npm run build
