@@ -33,8 +33,13 @@ class PaymentController extends Controller
 
     public function reject(Request $request, $id)
     {
+        $request->validate([
+            'rejection_reason' => 'nullable|string',
+        ]);
+
         $payment = Payment::findOrFail($id);
         $payment->status = 'rejected';
+        $payment->rejection_reason = $request->rejection_reason;
         $payment->save();
 
         return response()->json(['message' => 'Pembayaran berhasil ditolak.']);

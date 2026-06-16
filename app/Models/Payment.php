@@ -15,6 +15,7 @@ class Payment extends Model
         'payment_method',
         'amount',
         'status',
+        'rejection_reason',
         'proof_of_payment',
     ];
 
