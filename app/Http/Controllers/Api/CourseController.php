@@ -18,6 +18,17 @@ class CourseController extends Controller
         return response()->json($courses);
     }
 
+    public function show($id)
+    {
+        $course = Course::with('lessons')->find($id);
+
+        if (!$course) {
+            return response()->json(['message' => 'Kursus tidak ditemukan'], 404);
+        }
+
+        return response()->json($course);
+    }
+
     // 2. DETAIL KURSUS & LIST LESSON (PENTING BUAT FLUTTER)
     public function lessons(Request $request, $course_id)
     {
@@ -32,19 +43,31 @@ class CourseController extends Controller
                         ->where('course_id', $course_id)
                         ->first();
 
-        // Ambil Daftar Materi (Assuming kamu punya tabel lessons)
-        // Kalau tabel lessons belum ada, nanti kita akali.
-        // Tapi idealnya: $lessons = $course->lessons;
-        
-        // SEMENTARA: Kita return data dummy atau struktur lesson jika ada
-        // Biar Flutter "Step 15" nanti bisa jalan.
-        
+        if (!$enrollment) {
+            return response()->json(['message' => 'Anda belum terdaftar'], 403);
+        }
+
+        return response()->json($course->lessons);
+    }
+
+    public function completeLessonByLesson(Request $request, $lesson_id)
+    {
+        $lesson = Lesson::find($lesson_id);
+
+        if (!$lesson) {
+            return response()->json(['message' => 'Materi tidak ditemukan'], 404);
+        }
+
+        $enrollment = $request->user()->courses()
+            ->where('course_id', $lesson->course_id)
+            ->first();
+
+        if (!$enrollment) {
+            return response()->json(['message' => 'Anda belum terdaftar'], 403);
+        }
+
         return response()->json([
-            'course' => $course,
-            'is_enrolled' => $enrollment ? true : false,
-            'progress' => $enrollment ? $enrollment->pivot->progress : 0,
-            // Nanti ini diganti real data dari tabel 'lessons'
-            'lessons' => $course->lessons ?? [] 
+            'message' => 'Lesson marked as complete (logic to be implemented).',
         ]);
     }
 
@@ -90,5 +113,14 @@ class CourseController extends Controller
     {
         $courses = $request->user()->courses()->get();
         return response()->json(['data' => $courses]); // Format sesuai repository Flutter
+    }
+
+    public function myCertificates(Request $request)
+    {
+        $courses = $request->user()->courses()
+            ->wherePivot('status', 'finished')
+            ->get();
+
+        return response()->json($courses);
     }
 }

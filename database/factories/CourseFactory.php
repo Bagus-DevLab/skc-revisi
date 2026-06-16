@@ -25,12 +25,12 @@ class CourseFactory extends Factory
             'title' => $this->faker->sentence(3),
             'category' => $this->faker->word(),
             'price' => $this->faker->numberBetween(50000, 500000),
-            'duration' => $this->faker->numberBetween(1, 10) . ' hours',
+            'duration' => $this->faker->numberBetween(1, 10),
             'description' => $this->faker->paragraph(),
             'image' => 'courses/' . $this->faker->uuid() . '.jpg',
             'rating' => $this->faker->randomFloat(1, 3, 5),
             'students_count' => $this->faker->numberBetween(10, 1000),
-            'difficulty_level' => $this->faker->randomElement(['Beginner', 'Intermediate', 'Advanced']),
+            'difficulty_level' => $this->faker->randomElement(['1', '2', '3', '4', '5']),
         ];
     }
 }

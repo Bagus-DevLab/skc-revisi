@@ -32,6 +32,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     // Perbaikan Route Progress: Pakai ID Kursus
     Route::post('/courses/{id}/progress', [CourseController::class, 'completeLesson']); 
+    Route::post('/lessons/{id}/complete', [CourseController::class, 'completeLessonByLesson']);
 
     // Payment
     Route::post('/checkout/{id}', [PaymentController::class, 'checkout']);
