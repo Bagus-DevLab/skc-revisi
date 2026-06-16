@@ -52,13 +52,14 @@ class CourseController extends Controller
 
     public function completeLessonByLesson(Request $request, $lesson_id)
     {
+        $user = $request->user();
         $lesson = Lesson::find($lesson_id);
 
         if (!$lesson) {
             return response()->json(['message' => 'Materi tidak ditemukan'], 404);
         }
 
-        $enrollment = $request->user()->courses()
+        $enrollment = $user->courses()
             ->where('course_id', $lesson->course_id)
             ->first();
 
@@ -66,8 +67,20 @@ class CourseController extends Controller
             return response()->json(['message' => 'Anda belum terdaftar'], 403);
         }
 
+        $newProgress = min(($enrollment->pivot->progress ?? 0) + 10, 100);
+        $status = $newProgress >= 100 ? 'finished' : 'active';
+
+        $user->courses()->updateExistingPivot($lesson->course_id, [
+            'progress' => $newProgress,
+            'status' => $status,
+            'last_accessed_at' => now(),
+        ]);
+
         return response()->json([
-            'message' => 'Lesson marked as complete (logic to be implemented).',
+            'message' => 'Progress berhasil diupdate',
+            'progress' => $newProgress,
+            'status' => $status,
+            'is_completed' => $newProgress >= 100,
         ]);
     }
 

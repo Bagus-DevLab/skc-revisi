@@ -103,7 +103,7 @@ class ApiCourseTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->create(['difficulty_level' => '1']);
-        $user->courses()->attach($course->id);
+        $user->courses()->attach($course->id, ['progress' => 90, 'status' => 'active']);
         $lesson = Lesson::factory()->create(['course_id' => $course->id]);
 
         Sanctum::actingAs($user);
@@ -111,6 +111,18 @@ class ApiCourseTest extends TestCase
         $response = $this->postJson('/api/lessons/' . $lesson->id . '/complete');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => 'Lesson marked as complete (logic to be implemented).']);
+                 ->assertJsonFragment([
+                     'message' => 'Progress berhasil diupdate',
+                     'progress' => 100,
+                     'status' => 'finished',
+                     'is_completed' => true,
+                 ]);
+
+        $this->assertDatabaseHas('enrollments', [
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'progress' => 100,
+            'status' => 'finished',
+        ]);
     }
 }
