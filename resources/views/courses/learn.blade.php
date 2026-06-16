@@ -73,12 +73,18 @@
                             
                             {{-- Action Buttons --}}
                             <div class="flex gap-3">
-                                <form action="{{ route('course.complete-lesson', $course->id) }}" method="POST" class="flex-1">
-                                    @csrf
-                                    <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
-                                        ✓ Tandai Selesai & Lanjut
-                                    </button>
-                                </form>
+                                @if($enrollment->pivot->status === 'finished')
+                                    <a href="{{ route('certificate.download', $course->id) }}" class="flex-1 text-center bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                                        Lihat Sertifikat
+                                    </a>
+                                @else
+                                    <form action="{{ route('course.complete-lesson', $course->id) }}" method="POST" class="flex-1">
+                                        @csrf
+                                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
+                                            ✓ Tandai Selesai & Lanjut
+                                        </button>
+                                    </form>
+                                @endif
                                 <button class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
                                     📝 Catatan
                                 </button>
