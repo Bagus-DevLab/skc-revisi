@@ -7,6 +7,29 @@ use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
+    public function index(Request $request)
+    {
+        $user = $request->user();
+        $enrolledCourseIds = $user->courses()->pluck('courses.id')->all();
+        $categories = Course::distinct()->orderBy('category')->pluck('category');
+
+        $courses = Course::query()
+            ->when($request->filled('category'), function ($query) use ($request) {
+                $query->where('category', $request->category);
+            })
+            ->when($request->filled('search'), function ($query) use ($request) {
+                $query->where(function ($query) use ($request) {
+                    $query->where('title', 'like', '%'.$request->search.'%')
+                        ->orWhere('description', 'like', '%'.$request->search.'%');
+                });
+            })
+            ->latest()
+            ->paginate(9)
+            ->withQueryString();
+
+        return view('courses.index', compact('courses', 'categories', 'enrolledCourseIds'));
+    }
+
     public function learn(Course $course)
     {
         // Pastikan user sudah enroll di kursus ini

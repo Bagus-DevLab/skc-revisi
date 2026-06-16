@@ -30,6 +30,7 @@ Route::get('/recommendations', [CourseController::class, 'recommend'])->name('co
 
 Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified'])->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/courses', [CourseController::class, 'index'])->name('courses.index');
     Route::get('/my-courses', MyCoursesController::class)->name('my-courses');
     Route::get('/my-certificates', MyCertificatesController::class)->name('my-certificates');
     Route::get('/payment-history', [PaymentController::class, 'userHistory'])->name('payment-history');

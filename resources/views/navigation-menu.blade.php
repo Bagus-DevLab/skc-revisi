@@ -32,6 +32,10 @@
                             {{ __('Dashboard') }}
                         </x-nav-link>
 
+                        <x-nav-link href="{{ route('courses.index') }}" :active="request()->routeIs('courses.index')">
+                            {{ __('Courses') }}
+                        </x-nav-link>
+
                         <x-nav-link href="{{ route('my-courses') }}" :active="request()->routeIs('my-courses')">
                             {{ __('My Courses') }}
                         </x-nav-link>
@@ -173,6 +177,9 @@
                 {{-- RESPONSIVE USER --}}
                 <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
                     {{ __('Dashboard') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('courses.index') }}" :active="request()->routeIs('courses.index')">
+                    {{ __('Courses') }}
                 </x-responsive-nav-link>
                 <x-responsive-nav-link href="{{ route('my-courses') }}" :active="request()->routeIs('my-courses')">
                     {{ __('My Courses') }}
