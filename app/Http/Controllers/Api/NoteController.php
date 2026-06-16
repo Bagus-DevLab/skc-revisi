@@ -3,15 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Note; // Pastikan Model Note sudah ada
+use App\Models\Note;
 use Illuminate\Http\Request;
 
 class NoteController extends Controller
 {
     public function index(Request $request)
     {
-        // Ini yang menyebabkan error karena ->notes() tidak ada di model User
-        $notes = $request->user()->notes()->get(); 
+        $notes = $request->user()->notes()->latest()->get();
         
         return response()->json($notes);
     }
@@ -22,33 +21,54 @@ class NoteController extends Controller
             'content' => 'required|string',
         ]);
 
-        // Pastikan user_id ikut disimpan
         $note = Note::create([
-            'user_id' => auth()->id(), // Ambil ID dari token Sanctum
+            'user_id' => auth()->id(),
             'content' => $request->content,
         ]);
 
         return response()->json($note, 201);
     }
 
-    public function destroy($id)
+    public function show(Note $note)
     {
-        // 1. Cari note berdasarkan ID
-        $note = Note::find($id);
-
-        // 2. Jika tidak ada, beri respon 404 (bukan 500)
-        if (!$note) {
-            return response()->json(['message' => 'Catatan tidak ditemukan'], 404);
-        }
-
-        // 3. Pastikan yang menghapus adalah pemiliknya
         if ($note->user_id !== auth()->id()) {
             return response()->json(['message' => 'Anda tidak punya akses'], 403);
         }
 
-        // 4. Eksekusi hapus
+        return response()->json($note);
+    }
+
+    public function update(Request $request, Note $note)
+    {
+        if ($note->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Anda tidak punya akses'], 403);
+        }
+
+        $request->validate([
+            'content' => 'required|string',
+        ]);
+
+        $note->update([
+            'content' => $request->content,
+        ]);
+
+        return response()->json($note);
+    }
+
+    public function destroy($id)
+    {
+        $note = Note::find($id);
+
+        if (!$note) {
+            return response()->json(['message' => 'Catatan tidak ditemukan'], 404);
+        }
+
+        if ($note->user_id !== auth()->id()) {
+            return response()->json(['message' => 'Anda tidak punya akses'], 403);
+        }
+
         $note->delete();
 
         return response()->json(['message' => 'Catatan berhasil dihapus'], 200);
     }
-}   
+}
