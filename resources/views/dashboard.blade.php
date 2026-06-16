@@ -52,7 +52,18 @@
                                 <a href="{{ route('my-courses') }}" class="text-xs text-blue-600 font-bold hover:underline">LIHAT SEMUA</a>
                             </div>
                             <div class="p-6 flex flex-col md:flex-row gap-6">
-                                <img src="{{ asset('storage/' . $lastCourse->image) }}" class="w-full md:w-40 h-28 object-cover rounded-lg shadow-sm" alt="Course Image">
+                                @php
+                                    $lastCourseImage = $lastCourse->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($lastCourse->image)
+                                        ? asset('storage/'.$lastCourse->image)
+                                        : null;
+                                @endphp
+                                @if($lastCourseImage)
+                                    <img src="{{ $lastCourseImage }}" class="w-full md:w-40 h-28 object-cover rounded-lg shadow-sm" alt="{{ $lastCourse->title }}">
+                                @else
+                                    <div class="w-full md:w-40 h-28 rounded-lg shadow-sm bg-gradient-to-br from-blue-600 to-slate-800 text-white flex items-center justify-center p-4 text-center text-xs font-black">
+                                        {{ $lastCourse->title }}
+                                    </div>
+                                @endif
                                 <div class="flex-1 flex flex-col justify-between">
                                     <div>
                                         <h4 class="text-lg font-bold text-gray-900">{{ $lastCourse->title }}</h4>

@@ -159,7 +159,18 @@
                         </div>
                         <div class="flex flex-col lg:flex-row gap-8 p-6 md:p-10">
                             <div class="lg:w-1/3">
-                                <img src="{{ asset('storage/' . $bestMatch->image) }}" class="w-full h-64 object-cover rounded-2xl shadow-lg group-hover:scale-105 transition duration-500">
+                                @php
+                                    $bestMatchImage = $bestMatch->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($bestMatch->image)
+                                        ? asset('storage/'.$bestMatch->image)
+                                        : null;
+                                @endphp
+                                @if($bestMatchImage)
+                                    <img src="{{ $bestMatchImage }}" class="w-full h-64 object-cover rounded-2xl shadow-lg group-hover:scale-105 transition duration-500" alt="{{ $bestMatch->title }}">
+                                @else
+                                    <div class="w-full h-64 rounded-2xl shadow-lg bg-gradient-to-br from-blue-600 to-slate-800 text-white flex items-center justify-center p-8 text-center">
+                                        <span class="text-2xl font-black">{{ $bestMatch->title }}</span>
+                                    </div>
+                                @endif
                             </div>
                             <div class="lg:w-2/3 flex flex-col">
                                 <span class="text-blue-600 font-bold uppercase tracking-widest text-sm mb-2">{{ $bestMatch->category }}</span>
@@ -229,10 +240,17 @@
                             @endif
 
                             <div class="h-56 bg-gray-200 relative overflow-hidden">
-                                @if($course->image)
-                                    <img src="{{ asset('storage/' . $course->image) }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700">
+                                @php
+                                    $courseImage = $course->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($course->image)
+                                        ? asset('storage/'.$course->image)
+                                        : null;
+                                @endphp
+                                @if($courseImage)
+                                    <img src="{{ $courseImage }}" class="w-full h-full object-cover group-hover:scale-110 transition duration-700" alt="{{ $course->title }}">
                                 @else
-                                    <div class="w-full h-full flex items-center justify-center text-gray-400">No Image</div>
+                                    <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-slate-800 text-white p-6 text-center">
+                                        <span class="text-lg font-black">{{ $course->title }}</span>
+                                    </div>
                                 @endif
                                 <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition duration-500"></div>
                                 <span class="absolute bottom-4 left-4 bg-white/20 backdrop-blur-md text-white text-[10px] font-black px-3 py-1 rounded-lg uppercase border border-white/30">

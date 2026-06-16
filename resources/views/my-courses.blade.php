@@ -32,10 +32,17 @@
                         
                         {{-- Thumbnail --}}
                         <div class="h-40 bg-gray-200 relative {{ $course->pivot->status === 'finished' ? 'grayscale' : '' }}">
-                            @if($course->image)
-                                <img src="{{ asset('storage/' . $course->image) }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
+                            @php
+                                $courseImage = $course->image && \Illuminate\Support\Facades\Storage::disk('public')->exists($course->image)
+                                    ? asset('storage/'.$course->image)
+                                    : null;
+                            @endphp
+                            @if($courseImage)
+                                <img src="{{ $courseImage }}" alt="{{ $course->title }}" class="w-full h-full object-cover">
                             @else
-                                <div class="w-full h-full flex items-center justify-center bg-gray-300 text-gray-500 text-xs">No Image</div>
+                                <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-600 to-slate-800 text-white p-6 text-center text-sm font-black">
+                                    {{ $course->title }}
+                                </div>
                             @endif
 
                             @if($course->pivot->status === 'finished')

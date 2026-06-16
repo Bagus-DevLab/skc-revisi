@@ -21,6 +21,10 @@ class PaymentController extends Controller
     // 2. Simpan Transaksi & Lanjut ke Halaman Instruksi
     public function store(Request $request, $id)
     {
+        $request->validate([
+            'payment_method' => 'required|string|max:50',
+        ]);
+
         $course = Course::findOrFail($id);
 
         $payment = Payment::create([
@@ -37,7 +41,9 @@ class PaymentController extends Controller
     // 3. Halaman Upload Bukti
     public function uploadPage($id)
     {
-        $payment = Payment::with('course')->findOrFail($id);
+        $payment = Payment::with('course')
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
 
         return view('courses.payment-upload', compact('payment'));
     }
@@ -45,7 +51,7 @@ class PaymentController extends Controller
     // 4. Proses Upload File
     public function processUpload(Request $request, $id)
     {
-        $payment = Payment::findOrFail($id);
+        $payment = Payment::where('user_id', Auth::id())->findOrFail($id);
         $request->validate(['proof' => 'required|image|max:2048']);
 
         $path = $request->file('proof')->store('payments', 'public');
@@ -91,8 +97,14 @@ class PaymentController extends Controller
         $payments = Payment::where('user_id', $user->id)
             ->with('course')
             ->latest()
-            ->get();
+            ->paginate(10);
 
-        return view('payment-history', compact('payments'));
+        $paymentSummary = Payment::where('user_id', $user->id)
+            ->selectRaw("sum(case when status = 'success' then 1 else 0 end) as success_count")
+            ->selectRaw("sum(case when status = 'pending' then 1 else 0 end) as pending_count")
+            ->selectRaw("sum(case when status = 'rejected' then 1 else 0 end) as rejected_count")
+            ->first();
+
+        return view('payment-history', compact('payments', 'paymentSummary'));
     }
 }
