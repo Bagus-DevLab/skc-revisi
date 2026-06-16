@@ -5,12 +5,13 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
-    public function register(Request $request) {
+    public function register(Request $request)
+    {
         $request->validate([
             'name' => 'required|string',
             'email' => 'required|email|unique:users',
@@ -29,12 +30,13 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
-    public function login(Request $request) {
-        if (!Auth::attempt($request->only('email', 'password'))) {
+    public function login(Request $request)
+    {
+        if (! Auth::attempt($request->only('email', 'password'))) {
             return response()->json(['message' => 'Email atau password salah'], 401);
         }
 
@@ -44,12 +46,14 @@ class AuthController extends Controller
         return response()->json([
             'access_token' => $token,
             'token_type' => 'Bearer',
-            'user' => $user
+            'user' => $user,
         ]);
     }
 
-    public function logout() {
+    public function logout()
+    {
         auth()->user()->tokens()->delete();
+
         return response()->json(['message' => 'Berhasil logout']);
     }
 }

@@ -11,6 +11,7 @@ class PaymentController extends Controller
     public function index()
     {
         $payments = Payment::with('user', 'course')->latest()->paginate(15);
+
         return response()->json($payments);
     }
 

@@ -22,11 +22,11 @@ class ApiNoteTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $this->getJson('/api/notes/' . $note->id)
+        $this->getJson('/api/notes/'.$note->id)
             ->assertOk()
             ->assertJsonFragment(['content' => 'Original note']);
 
-        $this->patchJson('/api/notes/' . $note->id, [
+        $this->patchJson('/api/notes/'.$note->id, [
             'content' => 'Updated note',
         ])
             ->assertOk()
@@ -49,8 +49,8 @@ class ApiNoteTest extends TestCase
 
         Sanctum::actingAs($otherUser);
 
-        $this->getJson('/api/notes/' . $note->id)->assertForbidden();
-        $this->patchJson('/api/notes/' . $note->id, [
+        $this->getJson('/api/notes/'.$note->id)->assertForbidden();
+        $this->patchJson('/api/notes/'.$note->id, [
             'content' => 'Changed note',
         ])->assertForbidden();
     }

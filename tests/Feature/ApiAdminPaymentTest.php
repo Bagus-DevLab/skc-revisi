@@ -26,7 +26,7 @@ class ApiAdminPaymentTest extends TestCase
 
         Sanctum::actingAs($admin);
 
-        $this->postJson('/api/admin/payments/' . $payment->id . '/reject', [
+        $this->postJson('/api/admin/payments/'.$payment->id.'/reject', [
             'rejection_reason' => 'Bukti pembayaran tidak jelas.',
         ])->assertOk();
 

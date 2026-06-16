@@ -16,6 +16,7 @@ class User extends Authenticatable
 
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
+
     use HasProfilePhoto;
     use Notifiable;
     use TwoFactorAuthenticatable;
@@ -36,11 +37,9 @@ class User extends Authenticatable
     public function courses()
     {
         return $this->belongsToMany(Course::class, 'enrollments')
-                    ->withPivot('progress', 'status', 'last_accessed_at')
-                    ->withTimestamps();
+            ->withPivot('progress', 'status', 'last_accessed_at')
+            ->withTimestamps();
     }
-
-    
 
     /**
      * The attributes that should be hidden for serialization.
@@ -66,6 +65,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(Payment::class);
     }
+
     /**
      * The accessors to append to the model's array form.
      *

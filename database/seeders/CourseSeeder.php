@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Course;
+use Illuminate\Database\Seeder;
 
 class CourseSeeder extends Seeder
 {
@@ -19,18 +19,18 @@ class CourseSeeder extends Seeder
                 'duration' => 12,   // C4 (Minggu)
                 'difficulty_level' => 3, // C5 (Menengah)
                 'description' => 'Belajar HTML, CSS, JS, dan Laravel dari nol.',
-                'image' => 'courses/web-dev.jpg'
+                'image' => 'courses/web-dev.jpg',
             ],
             [
                 'title' => 'Digital Marketing Masterclass',
                 'category' => 'Marketing',
-                'price' => 350000, 
+                'price' => 350000,
                 'rating' => 4.5,
                 'students_count' => 1200,
                 'duration' => 8,
                 'difficulty_level' => 2, // Lebih Mudah
                 'description' => 'Kuasai FB Ads, Google Ads, dan SEO.',
-                'image' => 'courses/digital-marketing.jpg'
+                'image' => 'courses/digital-marketing.jpg',
             ],
             [
                 'title' => 'UI/UX Design for Beginner',
@@ -41,7 +41,7 @@ class CourseSeeder extends Seeder
                 'duration' => 10,
                 'difficulty_level' => 3,
                 'description' => 'Desain aplikasi cantik dengan Figma.',
-                'image' => 'courses/uiux.jpg'
+                'image' => 'courses/uiux.jpg',
             ],
         ];
 

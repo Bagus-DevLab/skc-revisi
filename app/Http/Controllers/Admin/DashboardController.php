@@ -12,7 +12,6 @@ class DashboardController extends Controller
     /**
      * Handle the incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function __invoke(Request $request)
@@ -21,18 +20,18 @@ class DashboardController extends Controller
         $courses = Course::latest()->get();
         $totalUsers = User::where('role', 'user')->count();
         $totalCourses = Course::count();
-        
+
         // Ambil 5 user terbaru yang baru mendaftar
         $recentUsers = User::where('role', 'user')->latest()->take(5)->get();
 
         // Placeholder untuk Payment (nanti diisi jika tabel payment sudah ada)
-        $pendingPaymentsCount = 0; 
+        $pendingPaymentsCount = 0;
         $totalRevenue = 0;
 
         return view('admin.dashboard', compact(
-            'courses', 
-            'totalUsers', 
-            'totalCourses', 
+            'courses',
+            'totalUsers',
+            'totalCourses',
             'recentUsers',
             'pendingPaymentsCount',
             'totalRevenue'

@@ -11,6 +11,7 @@ class PaymentController extends Controller
     public function indexAdmin()
     {
         $payments = Payment::with('user', 'course')->latest()->paginate(15);
+
         return view('admin.payments-index', compact('payments'));
     }
 
@@ -44,6 +45,7 @@ class PaymentController extends Controller
     public function show($id)
     {
         $payment = Payment::with('user', 'course')->findOrFail($id);
+
         return view('admin.payments.show', compact('payment'));
     }
 }

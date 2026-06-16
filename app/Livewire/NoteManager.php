@@ -2,15 +2,18 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
 use App\Models\Note;
 use Illuminate\Support\Facades\Auth;
+use Livewire\Component;
 
 class NoteManager extends Component
 {
     public $notes; // Menampung list data (READ)
+
     public $content; // Menampung input form
+
     public $note_id; // Menyimpan ID saat edit
+
     public $isEditing = false; // Status mode edit
 
     // Validasi form
@@ -22,9 +25,9 @@ class NoteManager extends Component
     public function render()
     {
         $this->notes = Note::where('user_id', Auth::id())
-                        ->latest() // Urutkan dari yang terbaru
-                        ->get();
-                        
+            ->latest() // Urutkan dari yang terbaru
+            ->get();
+
         return view('livewire.note-manager');
     }
 
@@ -46,9 +49,9 @@ class NoteManager extends Component
     public function edit($id)
     {
         $note = Note::findOrFail($id);
-        
+
         // Security Check: Pastikan note milik user yang login
-        if($note->user_id !== Auth::id()) {
+        if ($note->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -63,8 +66,8 @@ class NoteManager extends Component
         $this->validate();
 
         $note = Note::findOrFail($this->note_id);
-        
-        if($note->user_id !== Auth::id()) {
+
+        if ($note->user_id !== Auth::id()) {
             abort(403);
         }
 
@@ -80,8 +83,8 @@ class NoteManager extends Component
     public function delete($id)
     {
         $note = Note::findOrFail($id);
-        
-        if($note->user_id === Auth::id()) {
+
+        if ($note->user_id === Auth::id()) {
             $note->delete();
             session()->flash('message', 'Catatan dihapus.');
         }

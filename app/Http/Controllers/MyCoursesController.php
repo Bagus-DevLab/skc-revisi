@@ -10,13 +10,12 @@ class MyCoursesController extends Controller
     /**
      * Handle the incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function __invoke(Request $request)
     {
         $user = Auth::user();
-        
+
         // Ganti tanda titik (.) sebelum get() menjadi panah (->)
         $enrollments = $user->courses()->withPivot('progress', 'status')->get();
 

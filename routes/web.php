@@ -1,17 +1,17 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\LandingController;
-use App\Http\Controllers\CourseController;
-use App\Http\Controllers\PaymentController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\MyCoursesController;
-use App\Http\Controllers\MyCertificatesController;
-use App\Http\Controllers\NotepadController;
-use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\CourseController as AdminCourseController;
-use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PaymentController as AdminPaymentController;
+use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\CourseController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\LandingController;
+use App\Http\Controllers\MyCertificatesController;
+use App\Http\Controllers\MyCoursesController;
+use App\Http\Controllers\NotepadController;
+use App\Http\Controllers\PaymentController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,7 +38,7 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
     Route::get('/course/{course}/learn', [CourseController::class, 'learn'])->name('course.learn');
     Route::post('/course/{course}/complete-lesson', [CourseController::class, 'completeLesson'])->name('course.complete-lesson');
     Route::get('/download-certificate/{course_id}', [CourseController::class, 'downloadCertificate'])->name('certificate.download');
-    
+
     Route::get('/course/{id}/checkout', [PaymentController::class, 'checkout'])->name('course.checkout');
     Route::post('/course/{id}/checkout', [PaymentController::class, 'store'])->name('course.store');
     Route::get('/payment/{id}/upload', [PaymentController::class, 'uploadPage'])->name('payment.upload');

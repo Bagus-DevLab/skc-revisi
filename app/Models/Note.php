@@ -14,7 +14,7 @@ class Note extends Model
         'user_id',
         'content',
         // 'title',
-        
+
     ];
 
     public function user()

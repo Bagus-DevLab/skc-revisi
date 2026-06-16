@@ -29,7 +29,7 @@ class PaymentHistoryTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->create(['difficulty_level' => '1']); // Assuming a CourseFactory exists
-        
+
         $payment1 = Payment::factory()->create([
             'user_id' => $user->id,
             'course_id' => $course->id,
@@ -48,7 +48,7 @@ class PaymentHistoryTest extends TestCase
         $response = $this->get(route('payment-history'));
 
         $response->assertStatus(200);
-        $response->assertSee('#INV-' . str_pad($payment1->id, 6, '0', STR_PAD_LEFT));
+        $response->assertSee('#INV-'.str_pad($payment1->id, 6, '0', STR_PAD_LEFT));
         $response->assertSee($course->title);
         $response->assertSee('Lunas');
         $response->assertSee('Menunggu');
@@ -58,7 +58,7 @@ class PaymentHistoryTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->create(['difficulty_level' => '1']);
-        
+
         $payment = Payment::factory()->create([
             'user_id' => $user->id,
             'course_id' => $course->id,
@@ -80,7 +80,7 @@ class PaymentHistoryTest extends TestCase
     {
         $user = User::factory()->create();
         $course = Course::factory()->create(['difficulty_level' => '1']);
-        
+
         $payment = Payment::factory()->create([
             'user_id' => $user->id,
             'course_id' => $course->id,

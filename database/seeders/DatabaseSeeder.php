@@ -2,13 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\User;
-
+use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-// ...
+    // ...
     public function run(): void
     {
         User::updateOrCreate(

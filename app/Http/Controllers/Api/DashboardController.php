@@ -41,7 +41,7 @@ class DashboardController extends Controller
                 return [
                     'id' => $course->id,
                     'title' => $course->title,
-                    'thumbnail' => $course->image ? asset('storage/' . $course->image) : 'https://via.placeholder.com/150',
+                    'thumbnail' => $course->image ? asset('storage/'.$course->image) : 'https://via.placeholder.com/150',
                     'instructor' => $course->instructor ?? 'Admin',
                     'progress' => $course->pivot->progress ?? 0,
                     'category' => $course->category ?? 'General',
@@ -61,7 +61,7 @@ class DashboardController extends Controller
                 'id' => $lastCourse->id,
                 'title' => $lastCourse->title,
                 'category' => $lastCourse->category,
-                'image' => $lastCourse->image ? asset('storage/' . $lastCourse->image) : 'https://via.placeholder.com/150',
+                'image' => $lastCourse->image ? asset('storage/'.$lastCourse->image) : 'https://via.placeholder.com/150',
                 'progress' => $lastCourse->pivot->progress ?? 0,
             ] : null,
             'recent_courses' => $recentCourses,

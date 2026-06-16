@@ -26,7 +26,7 @@ class LessonFactory extends Factory
             'course_id' => Course::factory(),
             'title' => $this->faker->sentence(4),
             'description' => $this->faker->paragraph(),
-            'video_url' => 'https://www.youtube.com/watch?v=' . $this->faker->unique()->lexify('?????????'),
+            'video_url' => 'https://www.youtube.com/watch?v='.$this->faker->unique()->lexify('?????????'),
             'content' => $this->faker->randomHtml(2, 3),
             'order' => $this->faker->numberBetween(1, 10),
         ];

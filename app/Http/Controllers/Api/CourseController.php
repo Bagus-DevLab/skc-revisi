@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Lesson; // Pastikan Model Lesson ada, kalau belum ada kita bahas
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class CourseController extends Controller
 {
@@ -14,6 +13,7 @@ class CourseController extends Controller
     public function index()
     {
         $courses = Course::all();
+
         // Atau kalau mau filter yg user enroll saja, logika bisa disesuaikan
         return response()->json($courses);
     }
@@ -22,7 +22,7 @@ class CourseController extends Controller
     {
         $course = Course::with('lessons')->find($id);
 
-        if (!$course) {
+        if (! $course) {
             return response()->json(['message' => 'Kursus tidak ditemukan'], 404);
         }
 
@@ -34,16 +34,16 @@ class CourseController extends Controller
     {
         // Cari kursus
         $course = Course::find($course_id);
-        if (!$course) {
+        if (! $course) {
             return response()->json(['message' => 'Kursus tidak ditemukan'], 404);
         }
 
         // Cek Enrollment User
         $enrollment = $request->user()->courses()
-                        ->where('course_id', $course_id)
-                        ->first();
+            ->where('course_id', $course_id)
+            ->first();
 
-        if (!$enrollment) {
+        if (! $enrollment) {
             return response()->json(['message' => 'Anda belum terdaftar'], 403);
         }
 
@@ -55,7 +55,7 @@ class CourseController extends Controller
         $user = $request->user();
         $lesson = Lesson::find($lesson_id);
 
-        if (!$lesson) {
+        if (! $lesson) {
             return response()->json(['message' => 'Materi tidak ditemukan'], 404);
         }
 
@@ -63,7 +63,7 @@ class CourseController extends Controller
             ->where('course_id', $lesson->course_id)
             ->first();
 
-        if (!$enrollment) {
+        if (! $enrollment) {
             return response()->json(['message' => 'Anda belum terdaftar'], 403);
         }
 
@@ -90,34 +90,34 @@ class CourseController extends Controller
         $user = $request->user();
         $course = Course::find($id);
 
-        if (!$course) {
+        if (! $course) {
             return response()->json(['message' => 'Kursus tidak ditemukan'], 404);
         }
-        
+
         // Cek Enrollment
         $enrollment = $user->courses()->where('course_id', $course->id)->first();
-        
-        if (!$enrollment) {
+
+        if (! $enrollment) {
             return response()->json(['message' => 'Anda belum terdaftar'], 403);
         }
-        
+
         // LOGIC UPDATE PROGRESS (Copy dari Web Controller kamu)
         $currentProgress = $enrollment->pivot->progress;
-        
+
         // Tambah 10% (Atau logika lain per lesson)
-        $newProgress = min($currentProgress + 10, 100); 
+        $newProgress = min($currentProgress + 10, 100);
         $status = $newProgress >= 100 ? 'finished' : 'active';
-        
+
         $user->courses()->updateExistingPivot($course->id, [
             'progress' => $newProgress,
-            'status' => $status
+            'status' => $status,
         ]);
-        
+
         return response()->json([
             'message' => 'Progress berhasil diupdate',
             'progress' => $newProgress,
             'status' => $status,
-            'is_completed' => $newProgress >= 100
+            'is_completed' => $newProgress >= 100,
         ]);
     }
 
@@ -125,6 +125,7 @@ class CourseController extends Controller
     public function myCourses(Request $request)
     {
         $courses = $request->user()->courses()->get();
+
         return response()->json(['data' => $courses]); // Format sesuai repository Flutter
     }
 

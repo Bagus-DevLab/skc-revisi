@@ -29,7 +29,7 @@ class ApiPaymentTest extends TestCase
         $response = $this->getJson('/api/payment-history');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(5, 'data'); // Assuming paginated response with 'data' key
+            ->assertJsonCount(5, 'data'); // Assuming paginated response with 'data' key
     }
 
     public function test_unauthenticated_user_cannot_get_payment_history()

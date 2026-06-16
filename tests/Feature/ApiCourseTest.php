@@ -22,7 +22,7 @@ class ApiCourseTest extends TestCase
         $response = $this->getJson('/api/courses');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(3);
+            ->assertJsonCount(3);
     }
 
     public function test_can_get_single_course_details()
@@ -30,11 +30,11 @@ class ApiCourseTest extends TestCase
         $course = Course::factory()->create(['difficulty_level' => '1']);
         Lesson::factory()->count(2)->create(['course_id' => $course->id]); // Assuming LessonFactory exists
 
-        $response = $this->getJson('/api/courses/' . $course->id);
+        $response = $this->getJson('/api/courses/'.$course->id);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['id' => $course->id, 'title' => $course->title])
-                 ->assertJsonCount(2, 'lessons');
+            ->assertJsonFragment(['id' => $course->id, 'title' => $course->title])
+            ->assertJsonCount(2, 'lessons');
     }
 
     public function test_authenticated_user_can_get_my_courses()
@@ -48,8 +48,8 @@ class ApiCourseTest extends TestCase
         $response = $this->getJson('/api/my-courses');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['id' => $course->id, 'title' => $course->title])
-                 ->assertJsonCount(1);
+            ->assertJsonFragment(['id' => $course->id, 'title' => $course->title])
+            ->assertJsonCount(1);
     }
 
     public function test_authenticated_user_can_get_my_certificates()
@@ -65,9 +65,9 @@ class ApiCourseTest extends TestCase
         $response = $this->getJson('/api/my-certificates');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['id' => $course1->id])
-                 ->assertJsonMissing(['id' => $course2->id])
-                 ->assertJsonCount(1);
+            ->assertJsonFragment(['id' => $course1->id])
+            ->assertJsonMissing(['id' => $course2->id])
+            ->assertJsonCount(1);
     }
 
     public function test_authenticated_user_can_get_course_lessons()
@@ -79,10 +79,10 @@ class ApiCourseTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->getJson('/api/courses/' . $course->id . '/lessons');
+        $response = $this->getJson('/api/courses/'.$course->id.'/lessons');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(3);
+            ->assertJsonCount(3);
     }
 
     public function test_unauthorized_user_cannot_get_course_lessons()
@@ -94,7 +94,7 @@ class ApiCourseTest extends TestCase
         // User not enrolled in the course
         Sanctum::actingAs($user);
 
-        $response = $this->getJson('/api/courses/' . $course->id . '/lessons');
+        $response = $this->getJson('/api/courses/'.$course->id.'/lessons');
 
         $response->assertStatus(403); // Or 404 depending on implementation
     }
@@ -108,15 +108,15 @@ class ApiCourseTest extends TestCase
 
         Sanctum::actingAs($user);
 
-        $response = $this->postJson('/api/lessons/' . $lesson->id . '/complete');
+        $response = $this->postJson('/api/lessons/'.$lesson->id.'/complete');
 
         $response->assertStatus(200)
-                 ->assertJsonFragment([
-                     'message' => 'Progress berhasil diupdate',
-                     'progress' => 100,
-                     'status' => 'finished',
-                     'is_completed' => true,
-                 ]);
+            ->assertJsonFragment([
+                'message' => 'Progress berhasil diupdate',
+                'progress' => 100,
+                'status' => 'finished',
+                'is_completed' => true,
+            ]);
 
         $this->assertDatabaseHas('enrollments', [
             'user_id' => $user->id,

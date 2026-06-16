@@ -11,7 +11,7 @@ class NoteController extends Controller
     public function index(Request $request)
     {
         $notes = $request->user()->notes()->latest()->get();
-        
+
         return response()->json($notes);
     }
 
@@ -59,7 +59,7 @@ class NoteController extends Controller
     {
         $note = Note::find($id);
 
-        if (!$note) {
+        if (! $note) {
             return response()->json(['message' => 'Catatan tidak ditemukan'], 404);
         }
 

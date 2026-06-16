@@ -45,7 +45,7 @@ class UserProfileController extends Controller
         $user->forceFill([
             'avatar' => $path,
         ])->save();
-        
+
         // Append a temporary avatar_url for immediate response
         $user->avatar_url = Storage::url($path);
 

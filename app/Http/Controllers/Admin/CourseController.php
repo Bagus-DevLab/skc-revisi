@@ -17,6 +17,7 @@ class CourseController extends Controller
     public function index()
     {
         $courses = Course::latest()->get();
+
         return view('admin.courses.index', compact('courses'));
     }
 
@@ -33,7 +34,6 @@ class CourseController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -76,7 +76,6 @@ class CourseController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Models\Course  $course
      * @return \Illuminate\Http\Response
      */
     public function show(Course $course)
@@ -87,7 +86,6 @@ class CourseController extends Controller
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Models\Course  $course
      * @return \Illuminate\Http\Response
      */
     public function edit(Course $course)
@@ -98,20 +96,18 @@ class CourseController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\Course  $course
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Course $course)
     {
         // 1. Validasi Input (Sesuaikan dengan field di database kamu)
         $request->validate([
-            'title'       => 'required|string|max:255',
-            'category'    => 'required',
-            'price'       => 'required|numeric',
-            'duration'    => 'required|numeric',
+            'title' => 'required|string|max:255',
+            'category' => 'required',
+            'price' => 'required|numeric',
+            'duration' => 'required|numeric',
             'description' => 'required',
-            'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Nullable karena tidak wajib ganti gambar
+            'image' => 'nullable|image|mimes:jpeg,png,jpg|max:2048', // Nullable karena tidak wajib ganti gambar
             'rating' => 'required|numeric|min:0|max:5',
             'students_count' => 'required|numeric|min:0',
             'difficulty_level' => 'required|in:1,2,3,4,5',
@@ -126,7 +122,7 @@ class CourseController extends Controller
             if ($course->image) {
                 Storage::disk('public')->delete($course->image);
             }
-            
+
             // Simpan gambar baru
             $imagePath = $request->file('image')->store('courses', 'public');
             $data['image'] = $imagePath;
@@ -142,12 +138,12 @@ class CourseController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\Course  $course
      * @return \Illuminate\Http\Response
      */
     public function destroy(Course $course)
     {
         $course->delete();
+
         return redirect()->back()->with('success', 'Kursus berhasil dihapus');
     }
 }

@@ -45,8 +45,8 @@ class UserController extends Controller
                 'name' => $user->name,
                 'email' => $user->email,
                 // Mengirimkan URL lengkap foto
-                'avatar' => $user->avatar ? url('storage/' . $user->avatar) : null,
-            ]
+                'avatar' => $user->avatar ? url('storage/'.$user->avatar) : null,
+            ],
         ], 200);
     }
 }

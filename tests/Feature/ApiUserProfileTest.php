@@ -36,9 +36,9 @@ class ApiUserProfileTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => 'Profile updated successfully.'])
-                 ->assertJsonFragment(['name' => 'New Name', 'email' => 'new@example.com']);
-        
+            ->assertJsonFragment(['message' => 'Profile updated successfully.'])
+            ->assertJsonFragment(['name' => 'New Name', 'email' => 'new@example.com']);
+
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
             'name' => 'New Name',
@@ -69,12 +69,12 @@ class ApiUserProfileTest extends TestCase
         ]);
 
         $response->assertStatus(200)
-                 ->assertJsonFragment(['message' => 'Avatar updated successfully.']);
-        
-        Storage::disk('public')->assertExists('avatars/' . $avatar->hashName());
+            ->assertJsonFragment(['message' => 'Avatar updated successfully.']);
+
+        Storage::disk('public')->assertExists('avatars/'.$avatar->hashName());
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
-            'avatar' => 'avatars/' . $avatar->hashName(),
+            'avatar' => 'avatars/'.$avatar->hashName(),
         ]);
     }
 
@@ -94,11 +94,11 @@ class ApiUserProfileTest extends TestCase
         ]);
 
         $response->assertStatus(200);
-        Storage::disk('public')->assertExists('avatars/' . $newAvatar->hashName());
+        Storage::disk('public')->assertExists('avatars/'.$newAvatar->hashName());
         Storage::disk('public')->assertMissing('avatars/old_avatar.jpg');
         $this->assertDatabaseHas('users', [
             'id' => $user->id,
-            'avatar' => 'avatars/' . $newAvatar->hashName(),
+            'avatar' => 'avatars/'.$newAvatar->hashName(),
         ]);
     }
 

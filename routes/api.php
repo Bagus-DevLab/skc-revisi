@@ -1,24 +1,26 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CourseController;
+use App\Http\Controllers\Api\DashboardController;
+use App\Http\Controllers\Api\NoteController; // <--- Pastikan Namespace API
+use App\Http\Controllers\Api\PaymentController;
+use App\Http\Controllers\Api\UserProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\CourseController; // <--- Pastikan Namespace API
-use App\Http\Controllers\Api\DashboardController;
-use App\Http\Controllers\Api\PaymentController;
-use App\Http\Controllers\Api\NoteController;
-use App\Http\Controllers\Api\UserProfileController;
 
 // --- Public Routes ---
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
-Route::get('/courses', [CourseController::class, 'index']); 
+Route::get('/courses', [CourseController::class, 'index']);
 Route::get('/courses/{id}', [CourseController::class, 'show']); // Detail metadata kursus (opsional)
 
 // --- Protected Routes (Sanctum) ---
 Route::middleware('auth:sanctum')->group(function () {
     // User & Profile
-    Route::get('/user', function (Request $request) { return $request->user(); });
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
     Route::post('/update-profile', [UserProfileController::class, 'update']);
     Route::post('/user/avatar', [UserProfileController::class, 'updateAvatar']);
 
@@ -26,12 +28,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dashboard-stats', [DashboardController::class, 'stats']);
     Route::get('/my-courses', [CourseController::class, 'myCourses']);
     Route::get('/my-certificates', [CourseController::class, 'myCertificates']);
-    
+
     // DETAIL KURSUS & PROGRESS (Penting buat Step 15)
-    Route::get('/courses/{id}/lessons', [CourseController::class, 'lessons']); 
-    
+    Route::get('/courses/{id}/lessons', [CourseController::class, 'lessons']);
+
     // Perbaikan Route Progress: Pakai ID Kursus
-    Route::post('/courses/{id}/progress', [CourseController::class, 'completeLesson']); 
+    Route::post('/courses/{id}/progress', [CourseController::class, 'completeLesson']);
     Route::post('/lessons/{id}/complete', [CourseController::class, 'completeLessonByLesson']);
 
     // Payment

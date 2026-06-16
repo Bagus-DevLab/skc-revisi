@@ -2,22 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Course;
+use Illuminate\Http\Request;
 
 class LandingController extends Controller
 {
     /**
      * Handle the incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function __invoke(Request $request)
     {
         $courses = Course::all();
         $categories = Course::distinct()->pluck('category');
-        
+
         // 1. Ambil nilai MIN dan MAX untuk normalisasi
         $minPrice = Course::min('price') ?: 1;
         $maxRating = Course::max('rating') ?: 1;
@@ -27,21 +26,21 @@ class LandingController extends Controller
 
         // 2. Tentukan Bobot dari hasil AHP Excel kamu
         $weights = [
-            'price'      => 0.515, // C1 (Cost: Semakin murah semakin bagus)
-            'rating'     => 0.222, // C2 (Benefit)
-            'students'   => 0.129, // C3 (Benefit)
-            'duration'   => 0.074, // C4 (Benefit)
-            'difficulty' => 0.039  // C5 (Cost: Semakin rendah level semakin bagus)
+            'price' => 0.515, // C1 (Cost: Semakin murah semakin bagus)
+            'rating' => 0.222, // C2 (Benefit)
+            'students' => 0.129, // C3 (Benefit)
+            'duration' => 0.074, // C4 (Benefit)
+            'difficulty' => 0.039,  // C5 (Cost: Semakin rendah level semakin bagus)
         ];
 
         // 3. Hitung Skor untuk setiap kursus
         $courseScores = $courses->map(function ($course) use ($minPrice, $maxRating, $maxStudents, $maxDuration, $minDifficulty, $weights) {
-            
+
             // Normalisasi (Scale 0-1)
             // Cost: min / nilai
             $nPrice = $minPrice / ($course->price ?: 1);
             $nDifficulty = $minDifficulty / ($course->difficulty_level ?: 1);
-            
+
             // Benefit: nilai / max
             $nRating = ($course->rating ?: 0) / $maxRating;
             $nStudents = ($course->students_count ?: 0) / $maxStudents;
@@ -55,6 +54,7 @@ class LandingController extends Controller
                      ($nDifficulty * $weights['difficulty']);
 
             $course->ai_score = $score;
+
             return $course;
         });
 
@@ -64,4 +64,3 @@ class LandingController extends Controller
         return view('landing', compact('courses', 'categories', 'recommendedCourse'));
     }
 }
-
