@@ -3,9 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Payment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-// use App\Models\Payment; // Aktifkan ini jika model Payment sudah dibuat
 
 class DashboardController extends Controller
 {
@@ -13,31 +12,17 @@ class DashboardController extends Controller
     {
         $user = $request->user();
 
-        // --- 1. DATA ASLI: STATISTIK KURSUS ---
-        // Mengambil data real dari tabel pivot 'course_user'
-        // Pastikan tabel course_user punya kolom 'status' (active/finished)
-        
         $activeCoursesCount = $user->courses()
-            ->wherePivot('status', 'active') 
+            ->wherePivot('status', 'active')
             ->count();
 
         $finishedCoursesCount = $user->courses()
             ->wherePivot('status', 'finished')
             ->count();
 
-        // --- 2. DATA ASLI: TOTAL INVESTASI ---
-        // Mengambil data dari tabel 'payments'
-        // Saya pakai pengecekan 'class_exists' agar Backend TIDAK CRASH (Error 500)
-        // jika kamu belum membuat Model Payment.
-        
-        $totalInvestment = 0;
-        
-        if (class_exists(\App\Models\Payment::class)) {
-            // Jika Model Payment ada, hitung totalnya
-            $totalInvestment = \App\Models\Payment::where('user_id', $user->id)
-                ->where('status', 'paid')
-                ->sum('amount');
-        }
+        $totalInvestment = Payment::where('user_id', $user->id)
+            ->where('status', 'success')
+            ->sum('amount');
 
         // --- 3. DATA ASLI: KURSUS TERAKHIR DIBUKA ---
         // Mengambil kursus yang paling baru di-update progress-nya
@@ -56,12 +41,11 @@ class DashboardController extends Controller
                 return [
                     'id' => $course->id,
                     'title' => $course->title,
-                    // Gunakan storage URL jika ada gambar, atau placeholder jika null
-                    'thumbnail' => $course->thumbnail ? asset('storage/' . $course->thumbnail) : 'https://via.placeholder.com/150',
+                    'thumbnail' => $course->image ? asset('storage/' . $course->image) : 'https://via.placeholder.com/150',
                     'instructor' => $course->instructor ?? 'Admin',
                     'progress' => $course->pivot->progress ?? 0,
                     'category' => $course->category ?? 'General',
-                    'image_url' => $course->thumbnail, // Alias untuk Flutter
+                    'image_url' => $course->image,
                 ];
             });
 
@@ -77,7 +61,7 @@ class DashboardController extends Controller
                 'id' => $lastCourse->id,
                 'title' => $lastCourse->title,
                 'category' => $lastCourse->category,
-                'image' => $lastCourse->thumbnail ? asset('storage/' . $lastCourse->thumbnail) : 'https://via.placeholder.com/150',
+                'image' => $lastCourse->image ? asset('storage/' . $lastCourse->image) : 'https://via.placeholder.com/150',
                 'progress' => $lastCourse->pivot->progress ?? 0,
             ] : null,
             'recent_courses' => $recentCourses,
