@@ -20,12 +20,13 @@ class PaymentController extends Controller
         $payment->status = 'success';
         $payment->save();
 
-        // Daftarkan user ke kursus
-        $payment->user->courses()->attach($payment->course_id, [
-            'status' => 'active',
-            'progress' => 0,
-            'last_accessed_at' => now(),
-        ]);
+        if (! $payment->user->courses()->where('course_id', $payment->course_id)->exists()) {
+            $payment->user->courses()->attach($payment->course_id, [
+                'status' => 'active',
+                'progress' => 0,
+                'last_accessed_at' => now(),
+            ]);
+        }
 
         return redirect()->route('admin.payments.index')->with('success', 'Pembayaran berhasil disetujui & user telah didaftarkan ke kursus.');
     }
