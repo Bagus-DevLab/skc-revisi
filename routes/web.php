@@ -46,8 +46,8 @@ Route::middleware(['auth:sanctum', config('jetstream.auth_session'), 'verified']
 
     Route::middleware(['role:admin'])->prefix('admin')->name('admin.')->group(function () {
         Route::get('/dashboard', AdminDashboardController::class)->name('dashboard');
-        Route::resource('courses', AdminCourseController::class);
-        Route::resource('users', AdminUserController::class);
+        Route::resource('courses', AdminCourseController::class)->except(['show']);
+        Route::resource('users', AdminUserController::class)->except(['show']);
         Route::get('/payments', [AdminPaymentController::class, 'indexAdmin'])->name('payments.index');
         Route::post('/payments/{id}/approve', [AdminPaymentController::class, 'approve'])->name('payments.approve');
         Route::post('/payments/{id}/reject', [AdminPaymentController::class, 'reject'])->name('payments.reject');
