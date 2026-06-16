@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
 
 
 class DatabaseSeeder extends Seeder
@@ -12,20 +11,24 @@ class DatabaseSeeder extends Seeder
 // ...
     public function run(): void
     {
-        // Buat Akun Admin
-        User::create([
-            'name' => 'Super Admin',
-            'email' => 'admin@skillconnect.id',
-            'password' => bcrypt('password123'), // Ganti password
-            'role' => 'admin', // Kuncinya di sini
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@skillconnect.id'],
+            [
+                'name' => 'Super Admin',
+                'password' => bcrypt('password123'),
+                'role' => 'admin',
+            ]
+        );
 
-        // Buat Akun User Biasa (Opsional untuk tes)
-        User::create([
-            'name' => 'Siswa Teladan',
-            'email' => 'siswa@skillconnect.id',
-            'password' => bcrypt('password123'),
-            'role' => 'user',
-        ]);
+        User::updateOrCreate(
+            ['email' => 'siswa@skillconnect.id'],
+            [
+                'name' => 'Siswa Teladan',
+                'password' => bcrypt('password123'),
+                'role' => 'user',
+            ]
+        );
+
+        $this->call(CourseSeeder::class);
     }
 }
