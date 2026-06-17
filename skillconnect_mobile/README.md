@@ -10,7 +10,8 @@ lib/src/app/skill_connect_app.dart    MaterialApp dan theme
 lib/src/app/skill_connect_shell.dart  Navigasi utama berdasarkan status login dan role
 lib/src/config/api_config.dart        Base URL API
 lib/src/services/api_client.dart      HTTP client dan error handling API
-lib/src/repositories/                 Integrasi API auth dan course
+lib/src/controllers/                  Session restore dan state auth
+lib/src/repositories/                 Integrasi API per domain
 lib/src/pages/                        Halaman beranda, auth, dashboard, course, notes, profil, admin
 lib/src/widgets/                      Komponen UI reusable
 ```
@@ -38,12 +39,19 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
 ## Fitur Saat Ini
 
 - Beranda publik dan daftar course.
-- Login dan register via API Laravel.
-- Shell navigasi berbeda untuk user biasa dan admin.
+- Login, register, restore session Sanctum, dan logout via API Laravel.
+- Token disimpan dengan `flutter_secure_storage`.
+- Shell navigasi berbeda untuk user biasa dan admin berdasarkan role.
 - Rekomendasi course via `GET /api/recommendations`.
-- Halaman dashboard, course, notes, profile, dan admin payment.
+- Dashboard user via `GET /api/dashboard-stats`.
+- Katalog course digabung dengan `/api/my-courses` untuk status ownership/progress.
+- Checkout course, upload bukti pembayaran, lesson list, dan complete lesson.
+- Notes CRUD via `/api/notes`.
+- Profile update dan upload avatar.
+- Riwayat pembayaran dan daftar sertifikat.
+- Admin payment list, approve, dan reject.
 
-Catatan: sebagian halaman masih memakai data statis/mock, terutama dashboard user, notes, dan admin payment. Integrasi API yang sudah ada berada di `AuthRepository`, `CourseRepository`, dan `ApiClient`.
+Fallback data contoh hanya dipakai di halaman publik saat API belum tersambung.
 
 ## Command
 
@@ -51,6 +59,7 @@ Catatan: sebagian halaman masih memakai data statis/mock, terutama dashboard use
 flutter pub get
 flutter run
 flutter test
+flutter analyze
 ```
 
 Backend Laravel perlu berjalan lebih dulu, misalnya dari root repository:
