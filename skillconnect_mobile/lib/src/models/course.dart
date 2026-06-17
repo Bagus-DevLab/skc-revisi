@@ -36,7 +36,7 @@ class Course {
         ? json['enrollment'] as Map<String, dynamic>
         : null;
     final progress = enrollment == null
-        ? 0
+        ? int.tryParse('${json['progress'] ?? 0}') ?? 0
         : int.tryParse('${enrollment['progress'] ?? 0}') ?? 0;
     final match =
         json['match_score'] ?? json['ai_score'] ?? json['user_match_score'];
@@ -51,10 +51,10 @@ class Course {
       students: int.tryParse('${json['students_count'] ?? 0}') ?? 0,
       durationWeeks: int.tryParse('${json['duration'] ?? 0}') ?? 0,
       matchScore: double.tryParse('${match ?? 0}') ?? 0,
-      owned: enrollment != null,
+      owned: enrollment != null || json.containsKey('progress'),
       progress: progress,
       colors: _colorsForCategory('${json['category'] ?? ''}'),
-      imageUrl: json['image_url'] as String?,
+      imageUrl: (json['image_url'] ?? json['thumbnail']) as String?,
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../controllers/session_controller.dart';
 import '../models/auth_session.dart';
 import '../pages/admin_dashboard_page.dart';
 import '../pages/admin_payments_page.dart';
@@ -23,21 +24,50 @@ class SkillConnectShell extends StatefulWidget {
 class _SkillConnectShellState extends State<SkillConnectShell> {
   int _index = 0;
   bool _showRegister = false;
-  AuthSession? _session;
+  late final SessionController _sessionController;
+
+  AuthSession? get _session => _sessionController.session;
 
   bool get _isLoggedIn => _session != null;
 
-  void _handleLogin(AuthSession session) {
+  @override
+  void initState() {
+    super.initState();
+    _sessionController = SessionController()..addListener(_onSessionChanged);
+    _sessionController.restore();
+  }
+
+  @override
+  void dispose() {
+    _sessionController
+      ..removeListener(_onSessionChanged)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onSessionChanged() {
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _handleLogin(AuthSession session) async {
+    await _sessionController.setSession(session);
     setState(() {
-      _session = session;
       _index = 0;
       _showRegister = false;
     });
   }
 
-  void _handleLogout() {
+  Future<void> _handleLogout() async {
+    await _sessionController.logout();
     setState(() {
-      _session = null;
+      _index = 0;
+      _showRegister = false;
+    });
+  }
+
+  Future<void> _handleUnauthorized() async {
+    await _sessionController.clear();
+    setState(() {
       _index = 0;
       _showRegister = false;
     });
@@ -45,6 +75,23 @@ class _SkillConnectShellState extends State<SkillConnectShell> {
 
   @override
   Widget build(BuildContext context) {
+    if (_sessionController.restoring) {
+      return const Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 14),
+                Text('Memulihkan sesi...'),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final navigation = _buildNavigation();
     if (_index >= navigation.pages.length) {
       _index = 0;
@@ -157,8 +204,16 @@ class _SkillConnectShellState extends State<SkillConnectShell> {
         pages: [
           const AdminDashboardPage(),
           const CoursesPage(),
-          const AdminPaymentsPage(),
-          ProfilePage(user: session.user, onLogout: _handleLogout),
+          AdminPaymentsPage(
+            token: session.token,
+            onUnauthorized: _handleUnauthorized,
+          ),
+          ProfilePage(
+            session: session,
+            onLogout: _handleLogout,
+            onUnauthorized: _handleUnauthorized,
+            onSessionChanged: _sessionController.setSession,
+          ),
         ],
         destinations: const [
           NavigationDestination(
@@ -188,10 +243,15 @@ class _SkillConnectShellState extends State<SkillConnectShell> {
     return _ShellNavigation(
       titles: const ['Dashboard', 'Kursus', 'Catatan', 'Profil'],
       pages: [
-        const DashboardPage(),
-        const CoursesPage(),
-        const NotesPage(),
-        ProfilePage(user: session.user, onLogout: _handleLogout),
+        DashboardPage(token: session.token, onUnauthorized: _handleUnauthorized),
+        CoursesPage(token: session.token, onUnauthorized: _handleUnauthorized),
+        NotesPage(token: session.token, onUnauthorized: _handleUnauthorized),
+        ProfilePage(
+          session: session,
+          onLogout: _handleLogout,
+          onUnauthorized: _handleUnauthorized,
+          onSessionChanged: _sessionController.setSession,
+        ),
       ],
       destinations: const [
         NavigationDestination(

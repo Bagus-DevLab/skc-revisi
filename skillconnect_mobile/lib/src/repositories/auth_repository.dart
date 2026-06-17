@@ -38,6 +38,21 @@ class AuthRepository {
     return _sessionFromPayload(payload);
   }
 
+  Future<AuthUser> currentUser(String token) async {
+    final payload = await _apiClient.get('/user', token: token);
+
+    if (payload is! Map<String, dynamic> ||
+        payload['data'] is! Map<String, dynamic>) {
+      throw const ApiException('Data user tidak valid');
+    }
+
+    return AuthUser.fromJson(payload['data'] as Map<String, dynamic>);
+  }
+
+  Future<void> logout(String token) async {
+    await _apiClient.post('/logout', token: token);
+  }
+
   AuthSession _sessionFromPayload(dynamic payload) {
     if (payload is! Map<String, dynamic>) {
       throw const ApiException('Format response auth tidak valid');

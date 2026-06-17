@@ -4,12 +4,14 @@ class AuthUser {
     required this.name,
     required this.email,
     required this.role,
+    this.avatarUrl,
   });
 
   final int id;
   final String name;
   final String email;
   final String role;
+  final String? avatarUrl;
 
   bool get isAdmin => role.toLowerCase() == 'admin';
 
@@ -21,6 +23,17 @@ class AuthUser {
       name: '${json['name'] ?? 'User'}',
       email: '${json['email'] ?? ''}',
       role: '${json['role'] ?? 'user'}',
+      avatarUrl: json['avatar_url'] as String?,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'role': role,
+      'avatar_url': avatarUrl,
+    };
   }
 }

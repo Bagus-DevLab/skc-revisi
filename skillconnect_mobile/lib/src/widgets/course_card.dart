@@ -10,16 +10,31 @@ import 'pill.dart';
 import 'progress_line.dart';
 
 class CourseCard extends StatelessWidget {
-  const CourseCard({super.key, required this.course});
+  const CourseCard({
+    super.key,
+    required this.course,
+    this.token,
+    this.onUnauthorized,
+    this.onChanged,
+  });
 
   final Course course;
+  final String? token;
+  final Future<void> Function()? onUnauthorized;
+  final VoidCallback? onChanged;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
-        onTap: () => showCourseSheet(context, course),
+        onTap: () => showCourseSheet(
+          context,
+          course,
+          token: token,
+          onUnauthorized: onUnauthorized,
+          onChanged: onChanged,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -92,7 +107,13 @@ class CourseCard extends StatelessWidget {
                         ),
                       ),
                       FilledButton(
-                        onPressed: () => showCourseSheet(context, course),
+                        onPressed: () => showCourseSheet(
+                          context,
+                          course,
+                          token: token,
+                          onUnauthorized: onUnauthorized,
+                          onChanged: onChanged,
+                        ),
                         style: FilledButton.styleFrom(
                           backgroundColor: course.owned
                               ? AppColors.success

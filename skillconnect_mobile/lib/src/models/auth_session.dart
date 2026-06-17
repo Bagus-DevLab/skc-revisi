@@ -5,4 +5,8 @@ class AuthSession {
 
   final String token;
   final AuthUser user;
+
+  Map<String, dynamic> toJson() {
+    return {'token': token, 'user': user.toJson()};
+  }
 }

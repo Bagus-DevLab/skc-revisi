@@ -1,5 +1,6 @@
 import 'dart:convert';
-import 'dart:io';
+
+import 'package:http/http.dart' as http;
 
 import '../config/api_config.dart';
 
@@ -9,21 +10,21 @@ class ApiException implements Exception {
   final String message;
   final int? statusCode;
 
+  bool get isUnauthorized => statusCode == 401;
+
   @override
   String toString() => message;
 }
 
 class ApiClient {
-  ApiClient({HttpClient? httpClient})
-    : _httpClient = httpClient ?? HttpClient();
+  ApiClient({http.Client? httpClient}) : _httpClient = httpClient ?? http.Client();
 
-  final HttpClient _httpClient;
+  final http.Client _httpClient;
 
   Future<dynamic> get(String path, {String? token}) async {
-    final request = await _httpClient.getUrl(_uri(path));
-    _applyHeaders(request, token);
-
-    final response = await request.close().timeout(const Duration(seconds: 12));
+    final response = await _httpClient
+        .get(_uri(path), headers: _headers(token))
+        .timeout(const Duration(seconds: 15));
     return _decode(response);
   }
 
@@ -32,46 +33,97 @@ class ApiClient {
     Map<String, dynamic>? body,
     String? token,
   }) async {
-    final request = await _httpClient.postUrl(_uri(path));
-    _applyHeaders(request, token);
+    final response = await _httpClient
+        .post(
+          _uri(path),
+          headers: _headers(token),
+          body: body == null ? null : jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 15));
+    return _decode(response);
+  }
 
-    if (body != null) {
-      request.write(jsonEncode(body));
-    }
+  Future<dynamic> put(
+    String path, {
+    Map<String, dynamic>? body,
+    String? token,
+  }) async {
+    final response = await _httpClient
+        .put(
+          _uri(path),
+          headers: _headers(token),
+          body: body == null ? null : jsonEncode(body),
+        )
+        .timeout(const Duration(seconds: 15));
+    return _decode(response);
+  }
 
-    final response = await request.close().timeout(const Duration(seconds: 12));
+  Future<dynamic> delete(String path, {String? token}) async {
+    final response = await _httpClient
+        .delete(_uri(path), headers: _headers(token))
+        .timeout(const Duration(seconds: 15));
+    return _decode(response);
+  }
+
+  Future<dynamic> multipart(
+    String path, {
+    required String field,
+    required String filePath,
+    String? token,
+    Map<String, String>? fields,
+  }) async {
+    final request = http.MultipartRequest('POST', _uri(path));
+    request.headers.addAll(_headers(token, json: false));
+    request.fields.addAll(fields ?? const {});
+    request.files.add(await http.MultipartFile.fromPath(field, filePath));
+
+    final streamed = await request.send().timeout(const Duration(seconds: 30));
+    final response = await http.Response.fromStream(streamed);
     return _decode(response);
   }
 
   Uri _uri(String path) {
+    if (path.startsWith('http://') || path.startsWith('https://')) {
+      return Uri.parse(path);
+    }
     final normalizedPath = path.startsWith('/') ? path : '/$path';
     return Uri.parse('${ApiConfig.baseUrl}$normalizedPath');
   }
 
-  void _applyHeaders(HttpClientRequest request, String? token) {
-    request.headers.contentType = ContentType.json;
-    request.headers.set(HttpHeaders.acceptHeader, ContentType.json.mimeType);
-
-    if (token != null && token.isNotEmpty) {
-      request.headers.set(HttpHeaders.authorizationHeader, 'Bearer $token');
-    }
+  Map<String, String> _headers(String? token, {bool json = true}) {
+    return {
+      'Accept': 'application/json',
+      if (json) 'Content-Type': 'application/json',
+      if (token != null && token.isNotEmpty) 'Authorization': 'Bearer $token',
+    };
   }
 
-  Future<dynamic> _decode(HttpClientResponse response) async {
-    final raw = await response.transform(utf8.decoder).join();
+  dynamic _decode(http.Response response) {
+    final raw = response.body;
     final decoded = raw.isEmpty ? <String, dynamic>{} : jsonDecode(raw);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
-      final message = decoded is Map<String, dynamic>
-          ? '${decoded['message'] ?? 'Request gagal'}'
-          : 'Request gagal';
-      throw ApiException(message, response.statusCode);
+      throw ApiException(_messageFrom(decoded), response.statusCode);
     }
 
     if (decoded is Map<String, dynamic> && decoded['success'] == false) {
-      throw ApiException('${decoded['message'] ?? 'Request gagal'}');
+      throw ApiException(_messageFrom(decoded), response.statusCode);
     }
 
     return decoded;
+  }
+
+  String _messageFrom(dynamic decoded) {
+    if (decoded is Map<String, dynamic>) {
+      final message = decoded['message'];
+      if (message != null && '$message'.isNotEmpty) return '$message';
+      final errors = decoded['errors'];
+      if (errors is Map && errors.isNotEmpty) {
+        final first = errors.values.first;
+        if (first is List && first.isNotEmpty) return '${first.first}';
+        return '$first';
+      }
+    }
+    return 'Request gagal';
   }
 }
