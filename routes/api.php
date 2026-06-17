@@ -14,6 +14,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 Route::get('/courses', [CourseController::class, 'index']);
 Route::get('/courses/{id}', [CourseController::class, 'show']); // Detail metadata kursus (opsional)
+Route::get('/recommendations', [CourseController::class, 'recommendations']);
 
 // --- Protected Routes (Sanctum) ---
 Route::middleware('auth:sanctum')->group(function () {

@@ -22,7 +22,7 @@ class ApiCourseTest extends TestCase
         $response = $this->getJson('/api/courses');
 
         $response->assertStatus(200)
-            ->assertJsonCount(3);
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_can_get_single_course_details()
@@ -33,8 +33,10 @@ class ApiCourseTest extends TestCase
         $response = $this->getJson('/api/courses/'.$course->id);
 
         $response->assertStatus(200)
-            ->assertJsonFragment(['id' => $course->id, 'title' => $course->title])
-            ->assertJsonCount(2, 'lessons');
+            ->assertJsonPath('data.id', $course->id)
+            ->assertJsonPath('data.title', $course->title)
+            ->assertJsonPath('data.lesson_count', 2)
+            ->assertJsonMissingPath('data.lessons');
     }
 
     public function test_authenticated_user_can_get_my_courses()
@@ -49,7 +51,7 @@ class ApiCourseTest extends TestCase
 
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $course->id, 'title' => $course->title])
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_authenticated_user_can_get_my_certificates()
@@ -67,7 +69,7 @@ class ApiCourseTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $course1->id])
             ->assertJsonMissing(['id' => $course2->id])
-            ->assertJsonCount(1);
+            ->assertJsonCount(1, 'data');
     }
 
     public function test_authenticated_user_can_get_course_lessons()
@@ -82,7 +84,7 @@ class ApiCourseTest extends TestCase
         $response = $this->getJson('/api/courses/'.$course->id.'/lessons');
 
         $response->assertStatus(200)
-            ->assertJsonCount(3);
+            ->assertJsonCount(3, 'data');
     }
 
     public function test_unauthorized_user_cannot_get_course_lessons()
@@ -111,12 +113,11 @@ class ApiCourseTest extends TestCase
         $response = $this->postJson('/api/lessons/'.$lesson->id.'/complete');
 
         $response->assertStatus(200)
-            ->assertJsonFragment([
-                'message' => 'Progress berhasil diupdate',
-                'progress' => 100,
-                'status' => 'finished',
-                'is_completed' => true,
-            ]);
+            ->assertJsonPath('message', 'Progress berhasil diupdate')
+            ->assertJsonPath('data.progress', 100)
+            ->assertJsonPath('data.status', 'finished')
+            ->assertJsonPath('data.is_completed', true)
+            ->assertJsonPath('data.already_completed', false);
 
         $this->assertDatabaseHas('enrollments', [
             'user_id' => $user->id,
@@ -124,5 +125,43 @@ class ApiCourseTest extends TestCase
             'progress' => 100,
             'status' => 'finished',
         ]);
+    }
+
+    public function test_completing_same_lesson_twice_is_idempotent()
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => '1']);
+        $user->courses()->attach($course->id, ['progress' => 0, 'status' => 'active']);
+        $lesson = Lesson::factory()->create(['course_id' => $course->id]);
+        Lesson::factory()->create(['course_id' => $course->id]);
+
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/lessons/'.$lesson->id.'/complete')
+            ->assertOk()
+            ->assertJsonPath('data.progress', 50)
+            ->assertJsonPath('data.already_completed', false);
+
+        $this->postJson('/api/lessons/'.$lesson->id.'/complete')
+            ->assertOk()
+            ->assertJsonPath('data.progress', 50)
+            ->assertJsonPath('data.already_completed', true);
+    }
+
+    public function test_can_get_course_recommendations()
+    {
+        Course::factory()->create([
+            'category' => 'Programming',
+            'price' => 100000,
+            'rating' => 4.5,
+            'difficulty_level' => '1',
+        ]);
+
+        $response = $this->getJson('/api/recommendations?category=Programming&pref_price=5&pref_rating=3');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.category', 'Programming')
+            ->assertJsonStructure(['data' => [['match_score', 'image_url', 'lesson_count']]]);
     }
 }
