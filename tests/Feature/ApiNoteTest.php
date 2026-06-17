@@ -24,13 +24,13 @@ class ApiNoteTest extends TestCase
 
         $this->getJson('/api/notes/'.$note->id)
             ->assertOk()
-            ->assertJsonFragment(['content' => 'Original note']);
+            ->assertJsonPath('data.content', 'Original note');
 
         $this->patchJson('/api/notes/'.$note->id, [
             'content' => 'Updated note',
         ])
             ->assertOk()
-            ->assertJsonFragment(['content' => 'Updated note']);
+            ->assertJsonPath('data.content', 'Updated note');
 
         $this->assertDatabaseHas('notes', [
             'id' => $note->id,

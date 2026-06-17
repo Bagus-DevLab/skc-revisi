@@ -40,8 +40,10 @@ class ApiDashboardTest extends TestCase
         $response = $this->getJson('/api/dashboard-stats');
 
         $response->assertOk()
-            ->assertJsonPath('stats.total_investment', 150000)
-            ->assertJsonPath('recent_courses.0.image_url', 'courses/example.jpg')
-            ->assertJsonPath('last_course.image', asset('storage/courses/example.jpg'));
+            ->assertJsonPath('data.stats.total_investment', 150000)
+            ->assertJsonPath('data.recent_courses.0.image', 'courses/example.jpg')
+            ->assertJsonPath('data.recent_courses.0.image_url', asset('storage/courses/example.jpg'))
+            ->assertJsonPath('data.last_course.image', 'courses/example.jpg')
+            ->assertJsonPath('data.last_course.image_url', asset('storage/courses/example.jpg'));
     }
 }

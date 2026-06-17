@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\RespondsWithApiJson;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
+    use RespondsWithApiJson;
+
     public function stats(Request $request)
     {
         $user = $request->user();
@@ -41,27 +44,27 @@ class DashboardController extends Controller
                 return [
                     'id' => $course->id,
                     'title' => $course->title,
-                    'thumbnail' => $course->image ? asset('storage/'.$course->image) : 'https://via.placeholder.com/150',
+                    'thumbnail' => $course->image ? asset('storage/'.$course->image) : null,
                     'instructor' => $course->instructor ?? 'Admin',
                     'progress' => $course->pivot->progress ?? 0,
                     'category' => $course->category ?? 'General',
-                    'image_url' => $course->image,
+                    'image' => $course->image,
+                    'image_url' => $course->image ? asset('storage/'.$course->image) : null,
                 ];
             });
 
-        // Return JSON ke Flutter
-        return response()->json([
+        return $this->success([
             'stats' => [
                 'active_courses' => $activeCoursesCount,
                 'finished_courses' => $finishedCoursesCount,
                 'total_investment' => $totalInvestment,
             ],
-            // Format data last_course agar aman jika null
             'last_course' => $lastCourse ? [
                 'id' => $lastCourse->id,
                 'title' => $lastCourse->title,
                 'category' => $lastCourse->category,
-                'image' => $lastCourse->image ? asset('storage/'.$lastCourse->image) : 'https://via.placeholder.com/150',
+                'image' => $lastCourse->image,
+                'image_url' => $lastCourse->image ? asset('storage/'.$lastCourse->image) : null,
                 'progress' => $lastCourse->pivot->progress ?? 0,
             ] : null,
             'recent_courses' => $recentCourses,

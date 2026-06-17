@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\RespondsWithApiJson;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -10,6 +11,8 @@ use Illuminate\Validation\Rule;
 
 class UserProfileController extends Controller
 {
+    use RespondsWithApiJson;
+
     public function update(Request $request)
     {
         $user = Auth::user();
@@ -25,7 +28,9 @@ class UserProfileController extends Controller
             'email' => $request->email,
         ])->save();
 
-        return response()->json(['message' => 'Profile updated successfully.', 'user' => $user]);
+        return $this->success([
+            'user' => $user,
+        ], 'Profile updated successfully.');
     }
 
     public function updateAvatar(Request $request)
@@ -49,6 +54,8 @@ class UserProfileController extends Controller
         // Append a temporary avatar_url for immediate response
         $user->avatar_url = Storage::url($path);
 
-        return response()->json(['message' => 'Avatar updated successfully.', 'user' => $user]);
+        return $this->success([
+            'user' => $user,
+        ], 'Avatar updated successfully.');
     }
 }

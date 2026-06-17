@@ -2,17 +2,20 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
+use App\Http\Controllers\Api\Concerns\RespondsWithApiJson;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
+    use RespondsWithApiJson;
+
     public function index()
     {
         $payments = Payment::with('user', 'course')->latest()->paginate(15);
 
-        return response()->json($payments);
+        return $this->paginated($payments);
     }
 
     public function approve(Request $request, $id)
@@ -29,7 +32,7 @@ class PaymentController extends Controller
             ]);
         }
 
-        return response()->json(['message' => 'Pembayaran berhasil disetujui & user telah didaftarkan ke kursus.']);
+        return $this->success(null, 'Pembayaran berhasil disetujui & user telah didaftarkan ke kursus.');
     }
 
     public function reject(Request $request, $id)
@@ -43,6 +46,6 @@ class PaymentController extends Controller
         $payment->rejection_reason = $request->rejection_reason;
         $payment->save();
 
-        return response()->json(['message' => 'Pembayaran berhasil ditolak.']);
+        return $this->success(null, 'Pembayaran berhasil ditolak.');
     }
 }
