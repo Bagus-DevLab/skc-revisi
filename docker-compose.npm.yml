@@ -1,0 +1,11 @@
+services:
+  web:
+    ports: []
+    networks:
+      - app_network
+      - npm_network
+
+networks:
+  npm_network:
+    external: true
+    name: ${NPM_NETWORK:-npm_default}

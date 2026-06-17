@@ -137,7 +137,7 @@ Test memakai konfigurasi `phpunit.xml` dengan SQLite in-memory untuk environment
 
 ## Deploy Docker Production
 
-Konfigurasi production memakai container PHP-FPM dan Nginx internal. Port HTTP tidak dibuka ke publik; default compose hanya bind ke localhost:
+Konfigurasi production memakai container PHP-FPM dan Nginx internal. Default compose hanya bind port HTTP ke localhost:
 
 ```text
 127.0.0.1:8091 -> skc-web:80
@@ -148,6 +148,31 @@ Ini cocok untuk server yang sudah memakai Nginx Proxy Manager. Di Nginx Proxy Ma
 ```text
 Forward Hostname / IP: 127.0.0.1
 Forward Port: 8091
+```
+
+Jika Nginx Proxy Manager kamu forward ke nama container Docker, jalankan SkillConnect pada network Docker yang sama dengan NPM:
+
+```bash
+docker inspect npm-app-1 --format '{{range $name, $_ := .NetworkSettings.Networks}}{{println $name}}{{end}}'
+```
+
+Masukkan nama network itu ke `.env`:
+
+```env
+NPM_NETWORK=nama_network_npm
+```
+
+Lalu jalankan compose dengan override NPM:
+
+```bash
+docker compose -f docker-compose.prod.yml -f docker-compose.npm.yml up -d --build
+```
+
+Di Nginx Proxy Manager, buat proxy host ke:
+
+```text
+Forward Hostname / IP: skc-web
+Forward Port: 80
 ```
 
 Contoh setup di server:
