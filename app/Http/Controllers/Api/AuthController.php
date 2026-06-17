@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Api\Concerns\RespondsWithApiJson;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -10,6 +11,8 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    use RespondsWithApiJson;
+
     public function register(Request $request)
     {
         $request->validate([
@@ -27,33 +30,44 @@ class AuthController extends Controller
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
+        return $this->success([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user,
-        ]);
+        ], 'Registrasi berhasil', 201);
     }
 
     public function login(Request $request)
     {
-        if (! Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Email atau password salah'], 401);
+        $credentials = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
+        ]);
+
+        if (! Auth::attempt($credentials)) {
+            return $this->error('Email atau password salah', 401);
         }
 
         $user = User::where('email', $request->email)->firstOrFail();
         $token = $user->createToken('auth_token')->plainTextToken;
 
-        return response()->json([
+        return $this->success([
             'access_token' => $token,
             'token_type' => 'Bearer',
             'user' => $user,
-        ]);
+        ], 'Login berhasil');
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        auth()->user()->tokens()->delete();
+        $token = $request->user()->currentAccessToken();
 
-        return response()->json(['message' => 'Berhasil logout']);
+        if ($token && method_exists($token, 'delete')) {
+            $token->delete();
+        } else {
+            $request->user()->tokens()->delete();
+        }
+
+        return $this->success(null, 'Berhasil logout');
     }
 }

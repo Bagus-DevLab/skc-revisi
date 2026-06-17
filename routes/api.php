@@ -19,8 +19,13 @@ Route::get('/courses/{id}', [CourseController::class, 'show']); // Detail metada
 Route::middleware('auth:sanctum')->group(function () {
     // User & Profile
     Route::get('/user', function (Request $request) {
-        return $request->user();
+        return response()->json([
+            'success' => true,
+            'message' => null,
+            'data' => $request->user(),
+        ]);
     });
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/update-profile', [UserProfileController::class, 'update']);
     Route::post('/user/avatar', [UserProfileController::class, 'updateAvatar']);
 
