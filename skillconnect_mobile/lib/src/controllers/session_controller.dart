@@ -86,7 +86,10 @@ class SessionController extends ChangeNotifier {
 
   Future<void> _persist(AuthSession session) async {
     await _storage.write(key: _tokenKey, value: session.token);
-    await _storage.write(key: _userKey, value: jsonEncode(session.user.toJson()));
+    await _storage.write(
+      key: _userKey,
+      value: jsonEncode(session.user.toJson()),
+    );
   }
 
   Future<AuthUser?> cachedUser() async {

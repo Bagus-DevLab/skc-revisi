@@ -300,8 +300,12 @@ class _PaymentHistorySheet extends StatelessWidget {
               for (final payment in payments)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: Text(payment.course?.title ?? 'Course #${payment.courseId}'),
-                  subtitle: Text('${payment.status} • ${payment.paymentMethod}'),
+                  title: Text(
+                    payment.course?.title ?? 'Course #${payment.courseId}',
+                  ),
+                  subtitle: Text(
+                    '${payment.status} • ${payment.paymentMethod}',
+                  ),
                   trailing: Text(
                     rupiah(payment.amount),
                     style: const TextStyle(fontWeight: FontWeight.w800),

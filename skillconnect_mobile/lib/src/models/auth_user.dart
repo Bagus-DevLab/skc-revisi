@@ -23,7 +23,7 @@ class AuthUser {
       name: '${json['name'] ?? 'User'}',
       email: '${json['email'] ?? ''}',
       role: '${json['role'] ?? 'user'}',
-      avatarUrl: json['avatar_url'] as String?,
+      avatarUrl: (json['avatar_url'] ?? json['profile_photo_url']) as String?,
     );
   }
 

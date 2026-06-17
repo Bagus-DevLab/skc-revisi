@@ -51,11 +51,8 @@ class UserProfileController extends Controller
             'avatar' => $path,
         ])->save();
 
-        // Append a temporary avatar_url for immediate response
-        $user->avatar_url = Storage::url($path);
-
         return $this->success([
-            'user' => $user,
+            'user' => $user->fresh(),
         ], 'Avatar updated successfully.');
     }
 }

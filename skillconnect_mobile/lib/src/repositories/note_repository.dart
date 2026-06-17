@@ -2,7 +2,8 @@ import '../models/note.dart';
 import '../services/api_client.dart';
 
 class NoteRepository {
-  NoteRepository({ApiClient? apiClient}) : _apiClient = apiClient ?? ApiClient();
+  NoteRepository({ApiClient? apiClient})
+    : _apiClient = apiClient ?? ApiClient();
 
   final ApiClient _apiClient;
 

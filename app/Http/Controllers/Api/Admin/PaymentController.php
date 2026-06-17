@@ -15,6 +15,35 @@ class PaymentController extends Controller
     {
         $payments = Payment::with('user', 'course')->latest()->paginate(15);
 
+        $payments->getCollection()->transform(function (Payment $payment) {
+            return [
+                'id' => $payment->id,
+                'course_id' => $payment->course_id,
+                'payment_method' => $payment->payment_method,
+                'amount' => $payment->amount,
+                'status' => $payment->status,
+                'proof_of_payment' => $payment->proof_of_payment,
+                'proof_of_payment_url' => $payment->proof_of_payment ? asset('storage/'.$payment->proof_of_payment) : null,
+                'rejection_reason' => $payment->rejection_reason,
+                'created_at' => $payment->created_at,
+                'user' => $payment->user ? [
+                    'id' => $payment->user->id,
+                    'name' => $payment->user->name,
+                    'email' => $payment->user->email,
+                    'role' => $payment->user->role,
+                    'avatar_url' => $payment->user->avatar_url,
+                ] : null,
+                'course' => $payment->course ? [
+                    'id' => $payment->course->id,
+                    'title' => $payment->course->title,
+                    'category' => $payment->course->category,
+                    'price' => $payment->course->price,
+                    'image' => $payment->course->image,
+                    'image_url' => $payment->course->image ? asset('storage/'.$payment->course->image) : null,
+                ] : null,
+            ];
+        });
+
         return $this->paginated($payments);
     }
 

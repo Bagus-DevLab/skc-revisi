@@ -26,8 +26,7 @@ class DashboardSummary {
     return DashboardSummary(
       activeCourses: int.tryParse('${stats['active_courses'] ?? 0}') ?? 0,
       finishedCourses: int.tryParse('${stats['finished_courses'] ?? 0}') ?? 0,
-      totalInvestment:
-          int.tryParse('${stats['total_investment'] ?? 0}') ?? 0,
+      totalInvestment: int.tryParse('${stats['total_investment'] ?? 0}') ?? 0,
       lastCourse: json['last_course'] is Map<String, dynamic>
           ? Course.fromJson(json['last_course'] as Map<String, dynamic>)
           : null,

@@ -30,7 +30,10 @@ class CourseRepository {
   }
 
   Future<List<Lesson>> fetchLessons(String token, int courseId) async {
-    final payload = await _apiClient.get('/courses/$courseId/lessons', token: token);
+    final payload = await _apiClient.get(
+      '/courses/$courseId/lessons',
+      token: token,
+    );
     if (payload is! Map<String, dynamic> || payload['data'] is! List) {
       throw const ApiException('Format materi tidak valid');
     }

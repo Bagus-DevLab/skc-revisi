@@ -243,7 +243,10 @@ class _SkillConnectShellState extends State<SkillConnectShell> {
     return _ShellNavigation(
       titles: const ['Dashboard', 'Kursus', 'Catatan', 'Profil'],
       pages: [
-        DashboardPage(token: session.token, onUnauthorized: _handleUnauthorized),
+        DashboardPage(
+          token: session.token,
+          onUnauthorized: _handleUnauthorized,
+        ),
         CoursesPage(token: session.token, onUnauthorized: _handleUnauthorized),
         NotesPage(token: session.token, onUnauthorized: _handleUnauthorized),
         ProfilePage(
