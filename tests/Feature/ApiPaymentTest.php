@@ -29,7 +29,8 @@ class ApiPaymentTest extends TestCase
         $response = $this->getJson('/api/payment-history');
 
         $response->assertStatus(200)
-            ->assertJsonCount(5, 'data'); // Assuming paginated response with 'data' key
+            ->assertJsonCount(5, 'data')
+            ->assertJsonPath('meta.total', 5);
     }
 
     public function test_unauthenticated_user_cannot_get_payment_history()
@@ -37,5 +38,17 @@ class ApiPaymentTest extends TestCase
         $response = $this->getJson('/api/payment-history');
 
         $response->assertStatus(401);
+    }
+
+    public function test_checkout_requires_payment_method()
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => '1']);
+
+        Sanctum::actingAs($user);
+
+        $this->postJson('/api/checkout/'.$course->id)
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('payment_method');
     }
 }
