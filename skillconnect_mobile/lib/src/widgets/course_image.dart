@@ -24,6 +24,14 @@ class CourseImage extends StatelessWidget {
               ),
             ),
           ),
+          if (course.imageUrl != null && course.imageUrl!.isNotEmpty)
+            Image.network(
+              course.imageUrl!,
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) {
+                return const SizedBox.shrink();
+              },
+            ),
           Positioned(
             left: 16,
             right: 16,

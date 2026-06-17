@@ -4,6 +4,7 @@ import '../models/course.dart';
 
 const courses = <Course>[
   Course(
+    id: 1,
     title: 'Digital Marketing untuk Pemula',
     category: 'Marketing',
     description:
@@ -18,6 +19,7 @@ const courses = <Course>[
     colors: [Color(0xFF2563EB), Color(0xFF0F172A)],
   ),
   Course(
+    id: 2,
     title: 'UI/UX Design dengan Figma',
     category: 'Design',
     description:
@@ -32,6 +34,7 @@ const courses = <Course>[
     colors: [Color(0xFF7C3AED), Color(0xFF2563EB)],
   ),
   Course(
+    id: 3,
     title: 'Laravel API untuk Mobile App',
     category: 'Programming',
     description:
@@ -46,6 +49,7 @@ const courses = <Course>[
     colors: [Color(0xFF0F766E), Color(0xFF0F172A)],
   ),
   Course(
+    id: 4,
     title: 'Data Analyst Career Starter',
     category: 'Data',
     description:
