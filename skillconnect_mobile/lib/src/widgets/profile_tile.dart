@@ -8,16 +8,19 @@ class ProfileTile extends StatelessWidget {
     required this.icon,
     required this.title,
     this.danger = false,
+    this.onTap,
   });
 
   final IconData icon;
   final String title;
   final bool danger;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return Card(
       child: ListTile(
+        onTap: onTap,
         leading: Icon(icon, color: danger ? Colors.red : AppColors.primary),
         title: Text(
           title,
