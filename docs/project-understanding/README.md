@@ -2,7 +2,7 @@
 
 ## Ringkasan Aplikasi
 
-Project ini adalah aplikasi kursus online berbasis Laravel 12. Fitur utamanya meliputi autentikasi user, landing page rekomendasi kursus, pembelian kursus melalui upload bukti pembayaran, approval pembayaran oleh admin, enrollment otomatis setelah pembayaran disetujui, progress belajar, sertifikat PDF, catatan belajar, dan API untuk integrasi aplikasi mobile atau client eksternal.
+Project ini adalah aplikasi kursus online berbasis Laravel 12. Fitur utamanya meliputi autentikasi user, landing page rekomendasi kursus, pembelian kursus melalui upload bukti pembayaran, approval pembayaran oleh admin, enrollment otomatis setelah pembayaran disetujui, progress belajar, sertifikat PDF, catatan belajar, dan API untuk integrasi aplikasi mobile atau client eksternal. Repository juga berisi subproject Flutter di `skillconnect_mobile/`.
 
 Stack utama:
 
@@ -34,6 +34,8 @@ tests/
   Feature/, Unit/          Test fitur dan unit
 docker/
   nginx/default.conf       Konfigurasi Nginx produksi/container
+skillconnect_mobile/
+  lib/                     Source client Flutter
 ```
 
 ## Alur Web Utama
@@ -57,7 +59,17 @@ Approval pembayaran dibuat idempotent: jika user sudah terdaftar pada kursus yan
 
 Kursus yang sudah dibeli dapat dibuka melalui `CourseController@learn`. Controller memastikan user sudah terdaftar di pivot `enrollments`.
 
-Progress belajar disimpan pada pivot `enrollments.progress`. Saat user menyelesaikan materi melalui controller web atau endpoint API lesson completion, progress bertambah 10% sampai maksimal 100%. Jika progress mencapai 100%, status enrollment berubah dari `active` menjadi `finished`.
+Progress belajar disimpan pada `enrollments.progress`.
+
+Pada web, route `POST /course/{course}/complete-lesson` menambah progress 10% per submit sampai maksimal 100%. Jika progress mencapai 100%, status enrollment berubah dari `active` menjadi `finished`.
+
+Pada API, progress lebih detail:
+
+- `GET /api/courses/{id}/lessons` mengembalikan lesson beserta `is_completed` berdasarkan `enrollments.completed_lessons`.
+- `POST /api/lessons/{id}/complete` menandai lesson tertentu selesai, menyimpan ID lesson ke `completed_lessons`, lalu menghitung progress dari jumlah lesson selesai dibanding total lesson course.
+- `POST /api/courses/{id}/progress` menyelesaikan lesson berikutnya yang belum selesai. Jika course tidak memiliki lesson berikutnya, endpoint fallback menambah progress 10%.
+
+Jika progress mencapai 100%, status enrollment berubah dari `active` menjadi `finished`.
 
 Sertifikat hanya bisa diunduh untuk kursus dengan status pivot `finished`. `downloadCertificate` membuat PDF dari view `resources/views/pdf/certificate.blade.php`.
 
@@ -76,6 +88,8 @@ Middleware `CheckRole` melakukan pengecekan sederhana terhadap `Auth::user()->ro
 
 Route resource admin untuk courses dan users hanya membuka index, create, store, edit, update, dan destroy. Route show tidak diekspos karena belum ada halaman detail khusus.
 
+Admin payment tersedia di web dan API. Approval payment bersifat idempotent: jika user sudah memiliki enrollment untuk course yang sama, sistem tidak membuat enrollment baru.
+
 ## API
 
 API berada di `routes/api.php`. Public endpoint:
@@ -84,10 +98,12 @@ API berada di `routes/api.php`. Public endpoint:
 - `POST /api/login`
 - `GET /api/courses`
 - `GET /api/courses/{id}`
+- `GET /api/recommendations`
 
 Endpoint protected menggunakan `auth:sanctum`:
 
 - `GET /api/user`
+- `POST /api/logout`
 - `POST /api/update-profile`
 - `POST /api/user/avatar`
 - `GET /api/dashboard-stats`
@@ -101,7 +117,15 @@ Endpoint protected menggunakan `auth:sanctum`:
 - `GET /api/payment-history`
 - `apiResource /api/notes`
 
+Endpoint protected admin menggunakan `auth:sanctum` dan `role:admin`:
+
+- `GET /api/admin/payments`
+- `POST /api/admin/payments/{id}/approve`
+- `POST /api/admin/payments/{id}/reject`
+
 API auth memakai Sanctum token. Login dan register mengembalikan `access_token` dengan tipe `Bearer`.
+
+Response API memakai format umum `success`, `message`, dan `data`. Response paginated memakai field tambahan `meta` untuk `current_page`, `last_page`, `per_page`, dan `total`.
 
 `GET /api/dashboard-stats` mengembalikan jumlah kursus aktif/selesai, total investasi dari payment berstatus `success`, kursus terakhir, dan daftar kursus terbaru. Gambar kursus memakai field `courses.image`.
 
@@ -113,7 +137,7 @@ Model utama:
 
 - `User`: memiliki banyak `Course` melalui tabel pivot `enrollments`, memiliki banyak `Note`, dan memiliki banyak `Payment`.
 - `Course`: memiliki banyak `Lesson`, dan banyak user melalui `enrollments`.
-- `Enrollment`: pivot user-course dengan field `progress`, `status`, dan `last_accessed_at`.
+- `Enrollment`: pivot user-course dengan field `progress`, `status`, `last_accessed_at`, dan `completed_lessons`.
 - `Payment`: milik user dan course, menyimpan metode, nominal, status, bukti pembayaran, dan alasan penolakan.
 - `Lesson`: milik course.
 - `Note`: catatan milik user.
@@ -123,6 +147,7 @@ Skema penting:
 - `courses.difficulty_level` adalah enum angka `1` sampai `5`.
 - `payments.status` memakai nilai seperti `pending`, `success`, dan `rejected`.
 - `enrollments.status` memakai nilai seperti `active` dan `finished`.
+- `enrollments.completed_lessons` dicast sebagai array dan menyimpan ID lesson yang sudah diselesaikan via API.
 
 ## Catatan Belajar
 
@@ -133,7 +158,7 @@ API notes juga menyediakan show dan update untuk melengkapi kontrak `Route::apiR
 
 ## Rekomendasi Kursus
 
-Rekomendasi kursus menggunakan bobot AHP hardcoded:
+Rekomendasi kursus menggunakan bobot AHP hardcoded di landing page:
 
 - Price: `0.515`, semakin murah semakin baik.
 - Rating: `0.222`, semakin tinggi semakin baik.
@@ -142,6 +167,14 @@ Rekomendasi kursus menggunakan bobot AHP hardcoded:
 - Difficulty: `0.039`, semakin rendah semakin baik.
 
 Landing page menghitung skor semua kursus. Endpoint `/recommendations` dapat memfilter kategori dan menyesuaikan bobot sederhana berdasarkan preferensi user.
+
+Endpoint API `GET /api/recommendations` memakai parameter opsional `category`, `pref_price`, dan `pref_rating`. API recommendation saat ini hanya menghitung komponen price dan rating dengan bobot `0.515` dan `0.222`, lalu mengembalikan `match_score`.
+
+## Client Flutter
+
+Subproject `skillconnect_mobile/` adalah aplikasi Flutter untuk SkillConnect.id. Entry point berada di `lib/main.dart`, shell aplikasi berada di `lib/src/app/skill_connect_shell.dart`, dan base URL API diatur melalui compile-time environment `API_BASE_URL` dengan default `http://127.0.0.1:8000/api`.
+
+Client mobile saat ini memiliki halaman beranda, login, register, dashboard, kursus, catatan, profil, dan halaman admin payment. Repository auth dan course sudah memanggil API Laravel untuk login, register, daftar course, dan rekomendasi. Beberapa halaman seperti dashboard, notes, dan admin payment masih memakai data statis/mock pada source Flutter.
 
 ## Setup Lokal
 
@@ -183,3 +216,4 @@ Project memiliki `Dockerfile`, `docker-compose.prod.yml`, `docker/entrypoint.sh`
 - Pastikan `php artisan storage:link` dijalankan di environment yang butuh akses file upload publik.
 - `npm install` melaporkan vulnerability; audit dependency perlu ditangani terpisah agar tidak mengubah versi secara tidak terkontrol.
 - Beberapa komentar kode masih campuran Indonesia dan Inggris. Ini tidak memblokir runtime, tetapi sebaiknya dirapikan saat cleanup style.
+- `resources/markdown/terms.md` dan `resources/markdown/policy.md` masih placeholder bawaan dan belum berisi konten legal final.
