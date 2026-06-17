@@ -15,7 +15,16 @@ class Enrollment extends Model
         'progress',
         'status',
         'last_accessed_at',
+        'completed_lessons',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'completed_lessons' => 'array',
+            'last_accessed_at' => 'datetime',
+        ];
+    }
 
     // Relasi ke User (Opsional tapi sangat disarankan)
     public function user()
