@@ -135,6 +135,64 @@ npm run build
 
 Test memakai konfigurasi `phpunit.xml` dengan SQLite in-memory untuk environment testing.
 
+## Deploy Docker Production
+
+Konfigurasi production memakai container PHP-FPM dan Nginx internal. Port HTTP tidak dibuka ke publik; default compose hanya bind ke localhost:
+
+```text
+127.0.0.1:8091 -> skc-web:80
+```
+
+Ini cocok untuk server yang sudah memakai Nginx Proxy Manager. Di Nginx Proxy Manager, buat proxy host ke:
+
+```text
+Forward Hostname / IP: 127.0.0.1
+Forward Port: 8091
+```
+
+Contoh setup di server:
+
+```bash
+cp .env.example .env
+php artisan key:generate --show
+```
+
+Masukkan key ke `.env`, lalu sesuaikan minimal:
+
+```env
+APP_ENV=production
+APP_DEBUG=false
+APP_URL=https://domain-api-kamu
+APP_HTTP_BIND=127.0.0.1
+APP_HTTP_PORT=8091
+DB_DATABASE=skillconnect
+DB_USERNAME=skillconnect
+DB_PASSWORD=password-kuat
+FILESYSTEM_DISK=public
+QUEUE_CONNECTION=sync
+CACHE_STORE=file
+SESSION_DRIVER=file
+```
+
+Build dan jalankan:
+
+```bash
+docker compose -f docker-compose.prod.yml up -d --build
+docker compose -f docker-compose.prod.yml exec app php artisan migrate --force --seed
+```
+
+Jika ingin migration jalan otomatis saat container start, set:
+
+```env
+RUN_MIGRATIONS=true
+```
+
+Untuk Flutter mobile, arahkan API ke domain Nginx Proxy Manager:
+
+```bash
+flutter run --dart-define=API_BASE_URL=https://domain-api-kamu/api
+```
+
 ## Struktur Project
 
 ```text

@@ -1,35 +1,60 @@
-# --- Stage 1: PHP Setup ---
+FROM node:22-alpine AS assets
+
+WORKDIR /app
+
+COPY package*.json vite.config.js ./
+COPY resources ./resources
+COPY public ./public
+
+RUN npm ci && npm run build
+
 FROM php:8.2-fpm-alpine
 
-# Install system dependencies
 RUN apk add --no-cache \
-    git \
+    bash \
     curl \
+    freetype-dev \
+    git \
+    icu-dev \
+    libjpeg-turbo-dev \
     libpng-dev \
+    libwebp-dev \
     libxml2-dev \
-    zip \
-    unzip \
-    sqlite-dev \
+    libzip-dev \
     oniguruma-dev \
-    gd-dev
+    postgresql-dev \
+    sqlite-dev \
+    unzip \
+    zip \
+  && docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+  && docker-php-ext-install \
+    bcmath \
+    exif \
+    gd \
+    intl \
+    mbstring \
+    pcntl \
+    pdo_mysql \
+    pdo_pgsql \
+    pdo_sqlite \
+    zip
 
-# Install PHP extensions for Laravel
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd pdo_sqlite
-
-# Get latest Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 WORKDIR /var/www
 
-# Copy application files
 COPY . .
+COPY --from=assets /app/public/build ./public/build
+COPY docker/entrypoint.sh /usr/local/bin/skc-entrypoint
 
-# Install composer dependencies
-RUN composer install --optimize-autoloader --no-dev
-
-# Set permissions
-RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache /var/www/database
-RUN chmod -R 775 /var/www/storage /var/www/bootstrap/cache /var/www/database
+RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \
+  && mkdir -p storage/app/public storage/framework/cache storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+  && cp -a public /var/www-public \
+  && chown -R www-data:www-data storage bootstrap/cache database \
+  && chmod -R ug+rwX storage bootstrap/cache database \
+  && chmod +x /usr/local/bin/skc-entrypoint
 
 EXPOSE 9000
+
+ENTRYPOINT ["skc-entrypoint"]
 CMD ["php-fpm"]
