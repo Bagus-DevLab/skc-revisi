@@ -13,7 +13,7 @@
             @endif
 
             {{-- Tombol Logout (Opsional ditaruh di navbar depan) --}}
-            <form method="POST" action="{{ route('logout') }}" class="inline">
+            <form method="POST" action="{{ route('logout', absolute: false) }}" class="inline">
                 @csrf
                 <button type="submit" class="text-sm text-gray-500 hover:text-gray-900 ml-2">
                     Keluar
