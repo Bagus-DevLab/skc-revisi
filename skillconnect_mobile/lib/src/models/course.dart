@@ -15,6 +15,7 @@ class Course {
     required this.progress,
     required this.colors,
     this.imageUrl,
+    this.certificateUrl,
   });
 
   final int id;
@@ -30,6 +31,7 @@ class Course {
   final int progress;
   final List<Color> colors;
   final String? imageUrl;
+  final String? certificateUrl;
 
   factory Course.fromJson(Map<String, dynamic> json) {
     final enrollment = json['enrollment'] is Map<String, dynamic>
@@ -55,6 +57,7 @@ class Course {
       progress: progress,
       colors: _colorsForCategory('${json['category'] ?? ''}'),
       imageUrl: (json['image_url'] ?? json['thumbnail']) as String?,
+      certificateUrl: json['certificate_url'] as String?,
     );
   }
 }

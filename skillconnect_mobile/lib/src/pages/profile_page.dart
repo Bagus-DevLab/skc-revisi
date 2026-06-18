@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../models/auth_session.dart';
@@ -259,7 +260,8 @@ class _ProfilePageState extends State<ProfilePage> {
       context: context,
       isScrollControlled: true,
       builder: (context) => _CertificatesSheet(
-        future: _courseRepository.fetchMyCertificates(widget.session.token),
+        repository: _courseRepository,
+        token: widget.session.token,
       ),
     );
   }
@@ -319,17 +321,58 @@ class _PaymentHistorySheet extends StatelessWidget {
   }
 }
 
-class _CertificatesSheet extends StatelessWidget {
-  const _CertificatesSheet({required this.future});
+class _CertificatesSheet extends StatefulWidget {
+  const _CertificatesSheet({required this.repository, required this.token});
 
-  final Future<List<Course>> future;
+  final CourseRepository repository;
+  final String token;
+
+  @override
+  State<_CertificatesSheet> createState() => _CertificatesSheetState();
+}
+
+class _CertificatesSheetState extends State<_CertificatesSheet> {
+  late final Future<List<Course>> _future = widget.repository
+      .fetchMyCertificates(widget.token);
+  final Set<int> _downloading = {};
+  String? _message;
+
+  Future<void> _download(Course course) async {
+    if (_downloading.contains(course.id)) return;
+    setState(() {
+      _downloading.add(course.id);
+      _message = null;
+    });
+
+    try {
+      final path = await widget.repository.downloadCertificate(course);
+      setState(() => _message = 'Sertifikat tersimpan di: $path');
+    } on ApiException catch (error) {
+      setState(() => _message = error.message);
+    } finally {
+      if (mounted) {
+        setState(() => _downloading.remove(course.id));
+      }
+    }
+  }
+
+  Future<void> _copyLink(Course course) async {
+    final url = course.certificateUrl;
+    if (url == null || url.isEmpty) {
+      setState(() => _message = 'Link sertifikat belum tersedia.');
+      return;
+    }
+
+    await Clipboard.setData(ClipboardData(text: url));
+    setState(() => _message = 'Link sertifikat disalin.');
+  }
 
   @override
   Widget build(BuildContext context) {
     return _SheetFrame(
       title: 'Sertifikat Saya',
       child: FutureBuilder<List<Course>>(
-        future: future,
+        future: _future,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const LinearProgressIndicator(minHeight: 3);
@@ -350,14 +393,101 @@ class _CertificatesSheet extends StatelessWidget {
             );
           }
           return Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              for (final course in certificates)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.workspace_premium_rounded),
-                  title: Text(course.title),
-                  subtitle: Text(course.category),
+              if (_message != null) ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEFF6FF),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFBFDBFE)),
+                  ),
+                  child: Text(
+                    _message!,
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
                 ),
+                const SizedBox(height: 12),
+              ],
+              for (final course in certificates) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const CircleAvatar(
+                              backgroundColor: Color(0xFFDCFCE7),
+                              child: Icon(
+                                Icons.workspace_premium_rounded,
+                                color: AppColors.success,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    course.title,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                  Text(
+                                    course.category,
+                                    style: const TextStyle(
+                                      color: AppColors.muted,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: FilledButton.icon(
+                                onPressed: _downloading.contains(course.id)
+                                    ? null
+                                    : () => _download(course),
+                                icon: _downloading.contains(course.id)
+                                    ? const SizedBox(
+                                        width: 18,
+                                        height: 18,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Icon(Icons.download_rounded),
+                                label: const Text('Download'),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () => _copyLink(course),
+                                icon: const Icon(Icons.link_rounded),
+                                label: const Text('Salin Link'),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
             ],
           );
         },

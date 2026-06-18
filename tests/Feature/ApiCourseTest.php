@@ -69,7 +69,12 @@ class ApiCourseTest extends TestCase
         $response->assertStatus(200)
             ->assertJsonFragment(['id' => $course1->id])
             ->assertJsonMissing(['id' => $course2->id])
-            ->assertJsonCount(1, 'data');
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.certificate_url', fn ($url) => is_string($url) && str_contains($url, '/download-certificate/'.$course1->id.'/signed/'.$user->id));
+
+        $this->get($response->json('data.0.certificate_url'))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
     }
 
     public function test_authenticated_user_can_get_course_lessons()

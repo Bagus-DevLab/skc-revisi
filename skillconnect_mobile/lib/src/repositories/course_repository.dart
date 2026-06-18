@@ -1,3 +1,8 @@
+import 'dart:io';
+
+import 'package:http/http.dart' as http;
+import 'package:path_provider/path_provider.dart';
+
 import '../models/course.dart';
 import '../models/lesson.dart';
 import '../services/api_client.dart';
@@ -51,6 +56,38 @@ class CourseRepository {
     await _apiClient.post('/courses/$courseId/progress', token: token);
   }
 
+  Future<String> downloadCertificate(Course course) async {
+    final url = course.certificateUrl;
+    if (url == null || url.isEmpty) {
+      throw const ApiException('Link sertifikat belum tersedia.');
+    }
+
+    final client = http.Client();
+    final http.Response response;
+
+    try {
+      response = await client
+          .get(Uri.parse(url), headers: {'Accept': 'application/pdf'})
+          .timeout(const Duration(seconds: 30));
+    } finally {
+      client.close();
+    }
+
+    if (response.statusCode < 200 || response.statusCode >= 300) {
+      throw ApiException(
+        'Sertifikat belum bisa didownload.',
+        response.statusCode,
+      );
+    }
+
+    final directory = await getApplicationDocumentsDirectory();
+    final fileName = _certificateFileName(course.title);
+    final file = File('${directory.path}/$fileName');
+    await file.writeAsBytes(response.bodyBytes, flush: true);
+
+    return file.path;
+  }
+
   Future<List<Course>> fetchRecommendations({
     String? category,
     int prefPrice = 1,
@@ -82,5 +119,14 @@ class CourseRepository {
         .whereType<Map<String, dynamic>>()
         .map(Course.fromJson)
         .toList();
+  }
+
+  String _certificateFileName(String title) {
+    final safeTitle = title
+        .replaceAll(RegExp(r'[^A-Za-z0-9 _-]'), '')
+        .trim()
+        .replaceAll(RegExp(r'\s+'), '-');
+
+    return 'Sertifikat-${safeTitle.isEmpty ? 'Course' : safeTitle}.pdf';
   }
 }

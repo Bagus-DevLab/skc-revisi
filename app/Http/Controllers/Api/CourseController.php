@@ -8,6 +8,7 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Lesson;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class CourseController extends Controller
 {
@@ -232,12 +233,25 @@ class CourseController extends Controller
         ];
 
         if ($includeEnrollment && $course->pivot) {
+            $status = $course->pivot->status;
+
             $payload['enrollment'] = [
                 'progress' => $course->pivot->progress,
-                'status' => $course->pivot->status,
+                'status' => $status,
                 'last_accessed_at' => $course->pivot->last_accessed_at,
                 'completed_lessons' => $course->pivot->completed_lessons ? json_decode($course->pivot->completed_lessons, true) : [],
             ];
+
+            if ($status === 'finished') {
+                $payload['certificate_url'] = URL::temporarySignedRoute(
+                    'certificate.download.signed',
+                    now()->addHours(2),
+                    [
+                        'course_id' => $course->id,
+                        'user_id' => $course->pivot->user_id,
+                    ],
+                );
+            }
         }
 
         return $payload;
