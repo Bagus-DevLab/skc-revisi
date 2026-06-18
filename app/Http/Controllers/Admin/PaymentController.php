@@ -17,7 +17,12 @@ class PaymentController extends Controller
 
     public function approve(Request $request, $id)
     {
-        $payment = Payment::findOrFail($id);
+        $payment = Payment::with('user')->findOrFail($id);
+
+        if ($payment->status !== 'pending') {
+            return redirect()->route('admin.payments.index')->with('error', 'Pembayaran ini sudah diproses.');
+        }
+
         $payment->status = 'success';
         $payment->save();
 
@@ -34,9 +39,18 @@ class PaymentController extends Controller
 
     public function reject(Request $request, $id)
     {
+        $validated = $request->validate([
+            'rejection_reason' => ['required', 'string', 'min:5', 'max:1000'],
+        ]);
+
         $payment = Payment::findOrFail($id);
+
+        if ($payment->status !== 'pending') {
+            return redirect()->route('admin.payments.index')->with('error', 'Pembayaran ini sudah diproses.');
+        }
+
         $payment->status = 'rejected';
-        $payment->rejection_reason = $request->rejection_reason;
+        $payment->rejection_reason = $validated['rejection_reason'];
         $payment->save();
 
         return redirect()->route('admin.payments.index')->with('success', 'Pembayaran berhasil ditolak.');

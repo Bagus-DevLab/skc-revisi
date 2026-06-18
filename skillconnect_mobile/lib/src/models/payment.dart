@@ -30,6 +30,24 @@ class Payment {
   bool get isPending => status == 'pending';
   bool get isSuccess => status == 'success';
   bool get isRejected => status == 'rejected';
+  bool get hasProof => proofUrl != null && proofUrl!.isNotEmpty;
+
+  String get statusLabel {
+    if (isSuccess) return 'Diterima';
+    if (isRejected) return 'Ditolak';
+    return hasProof ? 'Menunggu review' : 'Menunggu bukti';
+  }
+
+  String get actionHint {
+    if (isSuccess) return 'Akses course sudah aktif.';
+    if (isRejected) {
+      return rejectionReason == null || rejectionReason!.isEmpty
+          ? 'Pembayaran ditolak. Buat checkout ulang atau hubungi admin.'
+          : rejectionReason!;
+    }
+    if (hasProof) return 'Bukti sudah diupload dan sedang divalidasi admin.';
+    return 'Upload bukti pembayaran agar admin bisa memproses pesanan.';
+  }
 
   factory Payment.fromJson(Map<String, dynamic> json) {
     return Payment(

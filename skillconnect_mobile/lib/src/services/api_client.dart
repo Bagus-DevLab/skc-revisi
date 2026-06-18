@@ -101,7 +101,7 @@ class ApiClient {
 
   dynamic _decode(http.Response response) {
     final raw = response.body;
-    final decoded = raw.isEmpty ? <String, dynamic>{} : jsonDecode(raw);
+    final decoded = _tryDecode(raw);
 
     if (response.statusCode < 200 || response.statusCode >= 300) {
       throw ApiException(_messageFrom(decoded), response.statusCode);
@@ -112,6 +112,15 @@ class ApiClient {
     }
 
     return decoded;
+  }
+
+  dynamic _tryDecode(String raw) {
+    if (raw.isEmpty) return <String, dynamic>{};
+    try {
+      return jsonDecode(raw);
+    } on FormatException {
+      return {'message': 'Server mengembalikan response yang tidak valid.'};
+    }
   }
 
   String _messageFrom(dynamic decoded) {

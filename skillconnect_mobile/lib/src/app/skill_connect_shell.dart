@@ -10,6 +10,7 @@ import '../pages/home_page.dart';
 import '../pages/login_page.dart';
 import '../pages/notes_page.dart';
 import '../pages/profile_page.dart';
+import '../pages/purchase_status_page.dart';
 import '../pages/register_page.dart';
 import '../theme/app_colors.dart';
 import '../widgets/brand_text.dart';
@@ -241,13 +242,17 @@ class _SkillConnectShellState extends State<SkillConnectShell> {
     }
 
     return _ShellNavigation(
-      titles: const ['Dashboard', 'Kursus', 'Catatan', 'Profil'],
+      titles: const ['Dashboard', 'Kursus', 'Keranjang', 'Catatan', 'Profil'],
       pages: [
         DashboardPage(
           token: session.token,
           onUnauthorized: _handleUnauthorized,
         ),
         CoursesPage(token: session.token, onUnauthorized: _handleUnauthorized),
+        PurchaseStatusPage(
+          token: session.token,
+          onUnauthorized: _handleUnauthorized,
+        ),
         NotesPage(token: session.token, onUnauthorized: _handleUnauthorized),
         ProfilePage(
           session: session,
@@ -266,6 +271,11 @@ class _SkillConnectShellState extends State<SkillConnectShell> {
           icon: Icon(Icons.school_outlined),
           selectedIcon: Icon(Icons.school_rounded),
           label: 'Kursus',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.shopping_cart_outlined),
+          selectedIcon: Icon(Icons.shopping_cart_rounded),
+          label: 'Keranjang',
         ),
         NavigationDestination(
           icon: Icon(Icons.edit_note_outlined),
