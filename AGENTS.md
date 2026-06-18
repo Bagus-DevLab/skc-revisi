@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-This is a Laravel 12 application. Core PHP code lives in `app/`, with HTTP controllers under `app/Http/Controllers`, middleware in `app/Http/Middleware`, Livewire components in `app/Livewire`, and Eloquent models in `app/Models`. Routes are split between `routes/web.php`, `routes/api.php`, and `routes/console.php`. Blade views and Markdown content are in `resources/views` and `resources/markdown`; Vite-managed frontend entry points are `resources/js/app.js` and `resources/css/app.css`. Database migrations, factories, and seeders are in `database/`. Tests are organized as `tests/Feature` and `tests/Unit`. Docker assets are in `Dockerfile`, `docker/`, and `docker-compose.prod.yml`.
+This is a Laravel 12 application with a Flutter client subproject. Core PHP code lives in `app/`, with HTTP controllers under `app/Http/Controllers`, middleware in `app/Http/Middleware`, Livewire components in `app/Livewire`, and Eloquent models in `app/Models`. Routes are split between `routes/web.php`, `routes/api.php`, and `routes/console.php`. Blade views and Markdown content are in `resources/views` and `resources/markdown`; Vite-managed frontend entry points are `resources/js/app.js` and `resources/css/app.css`. Database migrations, factories, and seeders are in `database/`. Tests are organized as `tests/Feature` and `tests/Unit`. Docker assets are in `Dockerfile`, `docker/`, and `docker-compose.prod.yml`. The Flutter client lives in `skillconnect_mobile/`, with app source under `skillconnect_mobile/lib/src`.
 
 ## Build, Test, and Development Commands
 
@@ -13,6 +13,9 @@ This is a Laravel 12 application. Core PHP code lives in `app/`, with HTTP contr
 - `npm run build` builds production frontend assets.
 - `composer run test` clears config and runs the Laravel test suite.
 - `php artisan migrate --seed` applies migrations and seeds local data when needed.
+- `cd skillconnect_mobile && flutter pub get` installs Flutter dependencies.
+- `cd skillconnect_mobile && flutter analyze` runs Dart static analysis.
+- `cd skillconnect_mobile && flutter test` runs Flutter tests.
 
 ## Coding Style & Naming Conventions
 

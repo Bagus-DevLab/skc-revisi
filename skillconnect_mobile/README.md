@@ -1,6 +1,6 @@
 # SkillConnect Mobile
 
-Subproject ini adalah client Flutter untuk aplikasi SkillConnect.id. Aplikasi memakai Material UI dan terhubung ke API Laravel di repository root.
+Subproject ini adalah client Flutter untuk aplikasi SkillConnect.id. Aplikasi memakai Material UI dan terhubung ke API Laravel di repository root melalui endpoint Sanctum/API JSON.
 
 ## Struktur Penting
 
@@ -45,13 +45,26 @@ flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
 - Rekomendasi course via `GET /api/recommendations`.
 - Dashboard user via `GET /api/dashboard-stats`.
 - Katalog course digabung dengan `/api/my-courses` untuk status ownership/progress.
-- Checkout course, upload bukti pembayaran, lesson list, dan complete lesson.
+- Checkout course, upload bukti pembayaran, riwayat pembayaran, lesson list, dan complete lesson.
 - Notes CRUD via `/api/notes`.
 - Profile update dan upload avatar.
 - Riwayat pembayaran dan daftar sertifikat.
 - Admin payment list, approve, dan reject.
 
 Fallback data contoh hanya dipakai di halaman publik saat API belum tersambung.
+
+## Integrasi API
+
+Repository Flutter berada di `lib/src/repositories` dan memetakan fitur aplikasi ke endpoint Laravel:
+
+- `AuthRepository`: login, register, restore session, logout.
+- `CourseRepository`: course list, rekomendasi, my courses, my certificates, lessons, complete lesson.
+- `DashboardRepository`: ringkasan dashboard user.
+- `NoteRepository`: list, create, update, delete note.
+- `PaymentRepository`: checkout, upload proof, payment history, admin payment list, approve, reject.
+- `ProfileRepository`: update profile dan upload avatar.
+
+`ApiClient` menangani header JSON, bearer token, multipart upload, timeout, decode response, dan pesan error dari field `message` atau `errors`.
 
 ## Command
 

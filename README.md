@@ -10,19 +10,23 @@ SkillConnect.id adalah aplikasi kursus online berbasis Laravel. Aplikasi ini men
 - PHPUnit
 - DomPDF untuk sertifikat
 - Docker/Nginx config untuk deployment container
+- Flutter client di `skillconnect_mobile/`
+- GitHub Actions untuk build image GHCR dan deploy ke VPS
 
 ## Fitur Utama
 
 - Landing page publik dengan daftar course dan rekomendasi.
+- Rekomendasi course web memakai normalisasi SAW dengan bobot AHP untuk price, rating, students, duration, dan difficulty.
 - Dashboard user dengan ringkasan course aktif, sertifikat, dan investasi.
 - Halaman `Courses` untuk user login yang menampilkan semua course.
 - Halaman `My Courses` untuk course yang sudah dibeli/enrolled.
 - Checkout course, upload bukti pembayaran, dan riwayat pembayaran.
-- Admin dashboard untuk mengelola course, user, dan konfirmasi pembayaran.
+- Admin dashboard untuk mengelola course, user, melihat detail pembayaran, approve pembayaran, dan reject pembayaran dengan alasan.
 - Progress belajar: web menambah progress 10% per submit, sedangkan API mobile melacak `completed_lessons` bila course memiliki lesson.
 - Sertifikat PDF untuk course berstatus `finished`.
 - Notepad pribadi via Livewire.
 - API login/register/logout, course, recommendation, payment, note, profile, dashboard stats, dan admin payment.
+- Flutter client dengan auth, dashboard, katalog, rekomendasi, checkout, upload bukti bayar, lesson/progress, notes, profile, payment history, sertifikat, dan admin payment.
 
 ## Setup Lokal
 
@@ -79,6 +83,7 @@ Seeder juga membuat beberapa course awal melalui `CourseSeeder`.
 - `/admin/courses` - kelola course.
 - `/admin/users` - kelola user.
 - `/admin/payments` - konfirmasi pembayaran.
+- `/admin/payments/{id}` - detail pembayaran.
 
 ## API Ringkas
 
@@ -125,6 +130,34 @@ Response API memakai format umum:
 
 Endpoint paginated menambahkan `meta` berisi `current_page`, `last_page`, `per_page`, dan `total`.
 
+## Client Flutter
+
+Subproject Flutter berada di `skillconnect_mobile/`. Base URL API default adalah:
+
+```text
+http://127.0.0.1:8000/api
+```
+
+Override saat menjalankan Flutter:
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
+```
+
+Gunakan `10.0.2.2` untuk Android emulator ketika backend Laravel berjalan di host machine. Source utama Flutter berada di:
+
+```text
+skillconnect_mobile/lib/main.dart
+skillconnect_mobile/lib/src/app
+skillconnect_mobile/lib/src/config
+skillconnect_mobile/lib/src/controllers
+skillconnect_mobile/lib/src/models
+skillconnect_mobile/lib/src/pages
+skillconnect_mobile/lib/src/repositories
+skillconnect_mobile/lib/src/services
+skillconnect_mobile/lib/src/widgets
+```
+
 ## Testing dan Formatting
 
 ```bash
@@ -134,6 +167,15 @@ npm run build
 ```
 
 Test memakai konfigurasi `phpunit.xml` dengan SQLite in-memory untuk environment testing.
+
+Flutter:
+
+```bash
+cd skillconnect_mobile
+flutter pub get
+flutter analyze
+flutter test
+```
 
 ## Deploy Docker Production
 
@@ -218,6 +260,8 @@ Untuk Flutter mobile, arahkan API ke domain Nginx Proxy Manager:
 flutter run --dart-define=API_BASE_URL=https://domain-api-kamu/api
 ```
 
+Repository juga memiliki workflow `.github/workflows/deploy.yml` yang berjalan saat push ke branch `main`. Workflow tersebut build dan push image ke GitHub Container Registry, lalu deploy ke VPS via SSH menggunakan secret `VPS_HOST`, `VPS_USERNAME`, `VPS_KEY`, dan `PROD_ENV`. Target directory default di workflow adalah `/var/www/skillconnect`.
+
 ## Struktur Project
 
 ```text
@@ -231,18 +275,17 @@ routes/web.php           Route web
 routes/api.php           Route API
 tests/Feature            Test fitur
 docker/                  Konfigurasi container pendukung
+.github/workflows        Workflow deploy GitHub Actions
 skillconnect_mobile/     Client Flutter untuk web/API SkillConnect
 ```
 
 ## Dokumentasi Tambahan
 
-Panduan contributor ada di `AGENTS.md`.
+Panduan contributor ada di `AGENTS.md`. Dokumentasi pemahaman teknis yang lebih rinci ada di `docs/project-understanding/README.md`.
 
-Dokumentasi pemahaman arsitektur dan alur aplikasi ada di:
+## Catatan Konten
 
-```text
-docs/project-understanding/README.md
-```
+`resources/markdown/terms.md` dan `resources/markdown/policy.md` sudah berisi draft operasional SkillConnect.id. Tinjau ulang sebelum digunakan sebagai dokumen hukum final di production publik.
 
 ## Catatan Development
 
@@ -252,4 +295,4 @@ docs/project-understanding/README.md
 - `courses.difficulty_level` memakai nilai `1` sampai `5`.
 - `enrollments.completed_lessons` menyimpan daftar ID lesson yang selesai untuk progress dari API.
 - Jika port dev default penuh, Laravel/Vite dapat memakai port lain yang tersedia.
-- `resources/markdown/terms.md` dan `resources/markdown/policy.md` masih placeholder dan perlu isi final sebelum production.
+- `resources/markdown/terms.md` dan `resources/markdown/policy.md` perlu review final sebelum production publik.
