@@ -71,7 +71,13 @@ class _DashboardPageState extends State<DashboardPage> {
                   subtitle: '${snapshot.error}',
                 ),
               ],
-              if (snapshot.hasData) _DashboardContent(summary: snapshot.data!),
+              if (snapshot.hasData)
+                _DashboardContent(
+                  summary: snapshot.data!,
+                  token: widget.token,
+                  onUnauthorized: widget.onUnauthorized,
+                  onChanged: _refresh,
+                ),
             ],
           ),
         );
@@ -81,9 +87,17 @@ class _DashboardPageState extends State<DashboardPage> {
 }
 
 class _DashboardContent extends StatelessWidget {
-  const _DashboardContent({required this.summary});
+  const _DashboardContent({
+    required this.summary,
+    required this.token,
+    required this.onUnauthorized,
+    required this.onChanged,
+  });
 
   final DashboardSummary summary;
+  final String token;
+  final Future<void> Function() onUnauthorized;
+  final VoidCallback onChanged;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +134,12 @@ class _DashboardContent extends StatelessWidget {
             subtitle: 'Checkout kursus lalu upload bukti pembayaran.',
           )
         else
-          ContinueLearningCard(course: lastCourse),
+          ContinueLearningCard(
+            course: lastCourse,
+            token: token,
+            onUnauthorized: onUnauthorized,
+            onChanged: onChanged,
+          ),
         if (summary.recentCourses.isNotEmpty) ...[
           const SizedBox(height: 18),
           const SectionHeader(

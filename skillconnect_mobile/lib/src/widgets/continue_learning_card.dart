@@ -3,12 +3,32 @@ import 'package:flutter/material.dart';
 import '../models/course.dart';
 import '../theme/app_colors.dart';
 import 'course_image.dart';
+import 'course_sheet.dart';
 import 'progress_line.dart';
 
 class ContinueLearningCard extends StatelessWidget {
-  const ContinueLearningCard({super.key, required this.course});
+  const ContinueLearningCard({
+    super.key,
+    required this.course,
+    required this.token,
+    required this.onUnauthorized,
+    this.onChanged,
+  });
 
   final Course course;
+  final String token;
+  final Future<void> Function() onUnauthorized;
+  final VoidCallback? onChanged;
+
+  void _openCourse(BuildContext context) {
+    showCourseSheet(
+      context,
+      course,
+      token: token,
+      onUnauthorized: onUnauthorized,
+      onChanged: onChanged,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +52,10 @@ class ContinueLearningCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                TextButton(onPressed: () {}, child: const Text('LIHAT SEMUA')),
+                TextButton(
+                  onPressed: () => _openCourse(context),
+                  child: const Text('BUKA'),
+                ),
               ],
             ),
             const SizedBox(height: 12),
@@ -48,7 +71,7 @@ class ContinueLearningCard extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () {},
+                onPressed: () => _openCourse(context),
                 child: const Text('LANJUTKAN'),
               ),
             ),

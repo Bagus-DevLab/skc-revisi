@@ -47,6 +47,10 @@ class CourseRepository {
     await _apiClient.post('/lessons/$lessonId/complete', token: token);
   }
 
+  Future<void> completeCourseProgress(String token, int courseId) async {
+    await _apiClient.post('/courses/$courseId/progress', token: token);
+  }
+
   Future<List<Course>> fetchRecommendations({
     String? category,
     int prefPrice = 1,
