@@ -19,7 +19,7 @@
                     <span class="text-xl font-black text-blue-900">Rp {{ number_format($payment->amount, 0, ',', '.') }}</span>
                 </div>
 
-                <form action="{{ route('payment.process', $payment->id) }}" method="POST" enctype="multipart/form-data" class="text-left">
+                <form action="{{ route('payment.process', $payment->id, absolute: false) }}" method="POST" enctype="multipart/form-data" class="text-left">
                     @csrf
                     <label class="block text-sm font-bold text-gray-700 mb-2 uppercase">Upload Bukti Transfer (JPG/PNG)</label>
                     <input type="file" name="proof" required class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 border p-3 rounded-xl mb-6">

@@ -5,7 +5,7 @@
                 <h2 class="text-2xl font-bold mb-2 text-gray-800 tracking-tight">Checkout Kursus</h2>
                 <p class="text-gray-500 mb-8">Anda akan mendaftar pada: <span class="font-bold text-gray-800">{{ $course->title }}</span></p>
                 
-                <form action="{{ route('course.store', $course->id) }}" method="POST">
+                <form action="{{ route('course.store', $course->id, absolute: false) }}" method="POST">
                     @csrf
                     <p class="text-sm font-bold text-gray-700 mb-4 uppercase tracking-widest">Pilih Metode Pembayaran</p>
                     <div class="space-y-3">

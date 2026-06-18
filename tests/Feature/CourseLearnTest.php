@@ -28,4 +28,31 @@ class CourseLearnTest extends TestCase
             ->assertSee(route('certificate.download', $course->id))
             ->assertDontSee('Tandai Selesai &amp; Lanjut', false);
     }
+
+    public function test_active_course_can_be_marked_complete_from_relative_post_form()
+    {
+        $user = User::factory()->create();
+        $course = Course::factory()->create(['difficulty_level' => '1']);
+
+        $user->courses()->attach($course->id, [
+            'progress' => 0,
+            'status' => 'active',
+        ]);
+
+        $this->actingAs($user)
+            ->get(route('course.learn', $course))
+            ->assertOk()
+            ->assertSee('action="/course/'.$course->id.'/complete-lesson"', false);
+
+        $this->actingAs($user)
+            ->post(route('course.complete-lesson', $course))
+            ->assertRedirect(route('course.learn', $course, absolute: false));
+
+        $this->assertDatabaseHas('enrollments', [
+            'user_id' => $user->id,
+            'course_id' => $course->id,
+            'progress' => 10,
+            'status' => 'active',
+        ]);
+    }
 }

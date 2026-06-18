@@ -29,7 +29,7 @@
                                     <td class="border px-4 py-2">{{ $user->role }}</td>
                                     <td class="border px-4 py-2">
                                         <a href="{{ route('admin.users.edit', $user) }}" class="text-blue-500">Edit</a>
-                                        <form action="{{ route('admin.users.destroy', $user) }}" method="POST" class="inline">
+                                        <form action="{{ route('admin.users.destroy', $user, absolute: false) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-500">Delete</button>

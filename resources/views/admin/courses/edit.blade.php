@@ -9,7 +9,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
                 <div class="p-6 sm:px-20 bg-white border-b border-gray-200">
-                    <form action="{{ route('admin.courses.update', $course) }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('admin.courses.update', $course, absolute: false) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="grid grid-cols-1 gap-6">

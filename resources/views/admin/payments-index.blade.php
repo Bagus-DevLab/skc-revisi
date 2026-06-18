@@ -100,13 +100,13 @@
                                     @endif
 
                                     @if($payment->status === 'pending' && $payment->proof_of_payment)
-                                        <form action="{{ route('admin.payments.approve', $payment->id) }}" method="POST">
+                                        <form action="{{ route('admin.payments.approve', $payment->id, absolute: false) }}" method="POST">
                                             @csrf
                                             <button type="submit" class="w-full rounded-md bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700 sm:w-auto">
                                                 Setujui
                                             </button>
                                         </form>
-                                        <button type="button" onclick="openRejectModal('{{ route('admin.payments.reject', $payment->id) }}', @js($payment->course->title))" class="rounded-md border border-red-200 px-4 py-2 text-sm font-bold text-red-700 hover:bg-red-50">
+                                        <button type="button" onclick="openRejectModal('{{ route('admin.payments.reject', $payment->id, absolute: false) }}', @js($payment->course->title))" class="rounded-md border border-red-200 px-4 py-2 text-sm font-bold text-red-700 hover:bg-red-50">
                                             Tolak
                                         </button>
                                     @endif

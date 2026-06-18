@@ -94,14 +94,14 @@
                         @endif
 
                         @if($payment->status === 'pending' && $payment->proof_of_payment)
-                            <form action="{{ route('admin.payments.approve', $payment->id) }}" method="POST">
+                            <form action="{{ route('admin.payments.approve', $payment->id, absolute: false) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="w-full rounded-md bg-green-600 px-4 py-2 text-sm font-bold text-white hover:bg-green-700">
                                     Setujui dan Buka Akses
                                 </button>
                             </form>
 
-                            <form action="{{ route('admin.payments.reject', $payment->id) }}" method="POST" class="space-y-2">
+                            <form action="{{ route('admin.payments.reject', $payment->id, absolute: false) }}" method="POST" class="space-y-2">
                                 @csrf
                                 <label for="rejection_reason" class="text-sm font-bold text-gray-700">Alasan penolakan</label>
                                 <textarea name="rejection_reason" id="rejection_reason" rows="4" minlength="5" maxlength="1000" class="block w-full rounded-md border-gray-300 shadow-sm focus:border-red-500 focus:ring-red-500" placeholder="Contoh: bukti transfer tidak terbaca" required>{{ old('rejection_reason') }}</textarea>

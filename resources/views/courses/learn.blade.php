@@ -78,7 +78,7 @@
                                         Lihat Sertifikat
                                     </a>
                                 @else
-                                    <form action="{{ route('course.complete-lesson', $course->id) }}" method="POST" class="flex-1">
+                                    <form action="{{ route('course.complete-lesson', $course->id, absolute: false) }}" method="POST" class="flex-1">
                                         @csrf
                                         <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
                                             ✓ Tandai Selesai & Lanjut

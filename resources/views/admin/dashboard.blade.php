@@ -102,7 +102,7 @@
                                                         </svg>
                                                     </a>
 
-                                                    <form action="{{ route('admin.courses.destroy', $course->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kursus ini?')">
+                                                    <form action="{{ route('admin.courses.destroy', $course->id, absolute: false) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus kursus ini?')">
                                                         @csrf
                                                         @method('DELETE')
                                                         <button type="submit" class="p-2 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition shadow-sm" title="Hapus Kursus">
