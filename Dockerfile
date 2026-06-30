@@ -1,8 +1,17 @@
+FROM composer:2 AS php-deps
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+
+RUN composer install --no-dev --prefer-dist --no-interaction --no-scripts --no-autoloader --ignore-platform-reqs
+
 FROM node:22-alpine AS assets
 
 WORKDIR /app
 
 COPY package*.json vite.config.js ./
+COPY --from=php-deps /app/vendor ./vendor
 COPY resources ./resources
 COPY public ./public
 
