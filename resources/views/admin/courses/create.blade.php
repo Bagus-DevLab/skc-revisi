@@ -21,7 +21,7 @@
                     <p class="mt-1 text-sm text-gray-600">Field bertanda wajib harus diisi sebelum course dipublikasikan.</p>
                 </div>
 
-                <form action="{{ route('admin.courses.store', absolute: false) }}" method="POST" enctype="multipart/form-data" class="p-6">
+                <form action="{{ route('admin.courses.store', absolute: false) }}" method="POST" enctype="multipart/form-data" class="p-6" x-data="{ imageError: '', validateImage(event) { const file = event.target.files[0]; this.imageError = ''; if (file && file.size > 2 * 1024 * 1024) { this.imageError = 'Ukuran gambar maksimal 2 MB. Pilih gambar yang lebih kecil.'; event.target.value = ''; } } }" @submit="if (imageError) $event.preventDefault()">
                     @csrf
 
                     <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -84,8 +84,9 @@
                         <div class="md:col-span-2">
                             <x-label for="image" value="{{ __('Image') }}" />
                             <div class="mt-2 rounded-lg border border-dashed border-gray-400 bg-gray-50 p-4">
-                                <input id="image" class="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700" type="file" name="image" accept="image/jpeg,image/png,image/jpg" required />
+                                <input id="image" class="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700" type="file" name="image" accept="image/jpeg,image/png,image/jpg" required @change="validateImage" />
                                 <p class="mt-2 text-xs text-gray-500">Format JPG atau PNG, maksimal 2 MB.</p>
+                                <p x-show="imageError" x-text="imageError" class="mt-2 text-sm text-red-600" style="display: none;"></p>
                             </div>
                             <x-input-error for="image" class="mt-2" />
                         </div>

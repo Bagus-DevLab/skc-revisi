@@ -45,6 +45,7 @@ WORKDIR /var/www
 
 COPY . .
 COPY --from=assets /app/public/build ./public/build
+COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/uploads.ini
 COPY docker/entrypoint.sh /usr/local/bin/skc-entrypoint
 
 RUN composer install --no-dev --prefer-dist --no-interaction --optimize-autoloader \

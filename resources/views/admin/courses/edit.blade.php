@@ -21,7 +21,7 @@
                     <p class="mt-1 text-sm text-gray-600">Pastikan perubahan sudah sesuai sebelum disimpan.</p>
                 </div>
 
-                <form action="{{ route('admin.courses.update', $course, absolute: false) }}" method="POST" enctype="multipart/form-data" class="p-6">
+                <form action="{{ route('admin.courses.update', $course, absolute: false) }}" method="POST" enctype="multipart/form-data" class="p-6" x-data="{ imageError: '', validateImage(event) { const file = event.target.files[0]; this.imageError = ''; if (file && file.size > 2 * 1024 * 1024) { this.imageError = 'Ukuran gambar maksimal 2 MB. Pilih gambar yang lebih kecil.'; event.target.value = ''; } } }" @submit="if (imageError) $event.preventDefault()">
                     @csrf
                     @method('PUT')
 
@@ -94,8 +94,9 @@
                                 @endif
 
                                 <div>
-                                    <input id="image" class="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700" type="file" name="image" accept="image/jpeg,image/png,image/jpg" />
+                                    <input id="image" class="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-blue-700" type="file" name="image" accept="image/jpeg,image/png,image/jpg" @change="validateImage" />
                                     <p class="mt-2 text-xs text-gray-500">Kosongkan jika tidak ingin mengganti gambar. Format JPG atau PNG, maksimal 2 MB.</p>
+                                    <p x-show="imageError" x-text="imageError" class="mt-2 text-sm text-red-600" style="display: none;"></p>
                                 </div>
                             </div>
                             <x-input-error for="image" class="mt-2" />
